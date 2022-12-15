@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class ContextTest extends TestCase
 {
-
     public function test_create_shopify_context()
     {
         $context = new Context('dummy.shopify.com', '2022-04', 'dummy_store_front_token', 'dummy_access_token');

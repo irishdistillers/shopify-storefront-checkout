@@ -135,10 +135,10 @@ class BeautifierTest extends TestCase
 
         $this->assertEquals('', $beautifier->getCountryCode());
 
-        $this->assertEquals('',$beautifier->getCreatedAt());
-        $this->assertEquals('',$beautifier->getUpdatedAt());
+        $this->assertEquals('', $beautifier->getCreatedAt());
+        $this->assertEquals('', $beautifier->getUpdatedAt());
 
-        $this->assertEquals('',$beautifier->getCheckoutUrl());
+        $this->assertEquals('', $beautifier->getCheckoutUrl());
 
         $this->assertEmpty($beautifier->getNote());
 
@@ -166,5 +166,4 @@ class BeautifierTest extends TestCase
         $this->assertNotEmpty($json);
         $this->assertEquals(json_encode([], JSON_PRETTY_PRINT), $json);
     }
-
 }

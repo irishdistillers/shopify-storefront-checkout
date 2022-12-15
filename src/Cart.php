@@ -57,7 +57,7 @@ class Cart
     }
 
     /**
-     * Get cart ID
+     * Get cart ID.
      *
      * @return string|null
      */
@@ -67,7 +67,7 @@ class Cart
     }
 
     /**
-     * Get currenty country code
+     * Get currenty country code.
      *
      * @return string|null
      */
