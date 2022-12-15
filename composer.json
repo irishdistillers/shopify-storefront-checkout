@@ -1,0 +1,53 @@
+{
+    "name": "irishdistillers/shopify-storefront-checkout",
+    "description": "Shopify Storefront Checkout",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Irishdistillers\\ShopifyStorefrontCheckout\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alberto Arena",
+            "email": "arena.alberto@gmail.com"
+        }
+    ],
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.4|^8.0",
+        "ext-json": "*",
+        "monolog/monolog": "2.x-dev"
+    },
+    "require-dev": {
+        "jaschilz/php-coverage-badger": "^2.0",
+        "phpunit/phpunit": "9.5.x-dev"
+    },
+    "scripts": {
+        "php-cs-fixer": [
+            "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --verbose"
+        ],
+        "test": [
+            "./vendor/bin/phpunit --testdox tests"
+        ],
+        "test-coverage": [
+            "@php -dxdebug.mode=coverage ./vendor/bin/phpunit --coverage-html reports/ --process-isolation tests"
+        ],
+        "test-badge": [
+            "@php -dxdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover clover.xml --process-isolation tests",
+            "vendor/bin/php-coverage-badger clover.xml coverage.svg"
+        ]
+    }
+}
