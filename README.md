@@ -41,22 +41,22 @@ $storeFrontAccessToken = 'b3f1f61693cae*******************';
 // Create context
 $context = new Context('my_shop.shopify.com', '2022-04', $storeFrontAccessToken);
 
-// Create cart object
-$cartObj = new CartService($context);
+// Create cart service
+$cartService = new CartService($context);
 
 // Create new cart, for Ireland market
-$cartId = $cartObj->getNewCart('IE');
+$cartId = $cartService->getNewCart('IE');
 
 // Add products to the cart
-$cartObj->addLines($cartId, [
+$cartService->addLines($cartId, [
     ['gid://shopify/ProductVariant/1234567890' => 1],
 ]);
 
 // Add discount codes to the cart
-$cartObj->updateDiscountCodes($cartId, 'TENPERCENT');
+$cartService->updateDiscountCodes($cartId, 'TENPERCENT');
 
 // Get checkout URL for United Kingdom market
-$checkoutUrl = $cartObj->getCheckoutUrl($cartId, 'GB');
+$checkoutUrl = $cartService->getCheckoutUrl($cartId, 'GB');
 
 // Checkout URL is immutable. Once paid, the URL won't work anymore.
 ```
@@ -80,7 +80,7 @@ $cartObj = new Cart($context);
 $cartObj->setCountryCode('IE');
 
 // Create new cart
-$cartId = $cartObj->getNewCart();
+$cartObj->getNewCart();
 
 // Add products to the cart
 $cartObj->addLines([
