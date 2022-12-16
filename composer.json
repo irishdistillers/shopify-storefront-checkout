@@ -29,11 +29,11 @@
     "require": {
         "php": "^7.4|^8.0",
         "ext-json": "*",
-        "monolog/monolog": "2.x-dev"
+        "monolog/monolog": "2.8.*"
     },
     "require-dev": {
         "jaschilz/php-coverage-badger": "^2.0",
-        "phpunit/phpunit": "9.5.x-dev"
+        "phpunit/phpunit": "9.5.*"
     },
     "scripts": {
         "php-cs-fixer": [

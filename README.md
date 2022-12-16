@@ -12,6 +12,21 @@ Details:
 
 ## Install
 
+### Add private repository to Composer
+
+Edit `composer.json`
+
+Add what follows in the `repository` section:
+
+```
+{
+    "type": "vcs",
+    "url":  "git@github.com:irishdistillers/shopify-storefront-checkout.git"
+}
+```
+
+### Require package
+
 ```shell
 composer require irishdistillers/shopify-storefront-checkout
 ```
