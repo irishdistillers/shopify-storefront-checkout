@@ -6,11 +6,12 @@ use Irishdistillers\ShopifyStorefrontCheckout\Cart;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use PHPUnit\Framework\TestCase;
 use Tests\ShopifyStorefrontCheckout\Mock\MockGraphql;
+use Tests\ShopifyStorefrontCheckout\Traits\AssertCartTrait;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class CartTest extends TestCase
 {
-    use MockCartTrait;
+    use MockCartTrait, AssertCartTrait;
 
     protected function getCart(): Cart
     {
@@ -45,7 +46,7 @@ class CartTest extends TestCase
         $this->assertCount(0, $cart['attributes']);
         $this->assertCount(0, $cart['discountCodes']);
         $this->assertEmpty($cart['note']);
-        $this->assertCount(0, $cart['lines']['edges']);
+        $this->cartAssertLineItemCount($cart, 0);
         $this->assertNotEmpty($cart['estimatedCost']);
         $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
     }
@@ -74,7 +75,7 @@ class CartTest extends TestCase
         $this->assertCount(0, $cart['attributes']);
         $this->assertCount(0, $cart['discountCodes']);
         $this->assertEmpty($cart['note']);
-        $this->assertCount(0, $cart['lines']['edges']);
+        $this->cartAssertLineItemCount($cart, 0);
         $this->assertNotEmpty($cart['estimatedCost']);
         $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
     }
@@ -164,8 +165,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         // Add item to the cart
         $ret = $cartObj->addLine($this->getNewVariantId(), 1);
@@ -174,10 +175,34 @@ class CartTest extends TestCase
         // Assert that the item was added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(1, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_add_single_line_with_attributes_to_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        // Add item to the cart
+        $ret = $cartObj->addLine($this->getNewVariantId(), 1, ['mvr' => 1]);
+        $this->assertTrue($ret);
+
+        // Assert that the item was added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 1, ['mvr' => 1]);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -190,8 +215,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         $variantId = $this->getNewVariantId();
 
@@ -202,10 +227,9 @@ class CartTest extends TestCase
         // Assert that the item was added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(1, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertTotalIsSet($cart);
 
         // Add again the same variant
         $ret = $cartObj->addLine($variantId, 2);
@@ -214,10 +238,9 @@ class CartTest extends TestCase
         // Assert that the item was updated
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(1, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(3, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 3);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -230,8 +253,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         // Add item with invalid quantity to the cart
         $ret = $cartObj->addLine($this->getNewVariantId(), 0);
@@ -240,8 +263,8 @@ class CartTest extends TestCase
         // Assert that the item was not added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
     }
 
     /**
@@ -254,8 +277,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         // Add two items to the cart
         $ret = $cartObj->addLines([
@@ -267,12 +290,39 @@ class CartTest extends TestCase
         // Assert that the items were added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_add_multiple_lines_with_attributes_to_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        // Add two items to the cart
+        $ret = $cartObj->addLines([
+            [$this->getNewVariantId() => ['quantity' => 1, 'attributes' => ['mvr' => 1]]],
+            [$this->getNewVariantId() => 2],
+        ]);
+        $this->assertTrue($ret);
+
+        // Assert that the items were added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1, ['mvr' => 1]);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -285,8 +335,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         $variantId1 = $this->getNewVariantId();
 
@@ -300,12 +350,10 @@ class CartTest extends TestCase
         // Assert that the items were added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
 
         // Get first line item
         $lineItemId = $cart['lines']['edges'][0]['node']['id'];
@@ -317,10 +365,56 @@ class CartTest extends TestCase
         // Assert that the first line item was updated
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 2);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_update_single_line_with_attributes_in_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        $variantId1 = $this->getNewVariantId();
+
+        // Add two items to the cart
+        $ret = $cartObj->addLines([
+            [$variantId1 => ['quantity' => 1, 'attributes' => ['mvr' => 0]]],
+            [$this->getNewVariantId() => 2],
+        ]);
+        $this->assertTrue($ret);
+
+        // Assert that the items were added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1, ['mvr' => 0]);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
+
+        // Get first line item
+        $lineItemId = $cart['lines']['edges'][0]['node']['id'];
+
+        // Update first line item
+        $ret = $cartObj->updateLine($lineItemId, 1, ['mvr' => 1]);
+        $this->assertTrue($ret);
+
+        // Assert that the first line item was updated
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 2, ['mvr' => 1]);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -333,8 +427,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         $variantId1 = $this->getNewVariantId();
 
@@ -348,24 +442,22 @@ class CartTest extends TestCase
         // Assert that the items were added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
 
         // Update non-existing line item
         $ret = $cartObj->updateLine($this->getNewLineItemId(), 1);
         $this->assertTrue($ret);
 
-        // Assert that the first line item was updated
+        // Assert that the first line item was not updated
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -378,8 +470,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         $variantId1 = $this->getNewVariantId();
         $variantId2 = $this->getNewVariantId();
@@ -394,12 +486,10 @@ class CartTest extends TestCase
         // Assert that the items were added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
 
         // Get line items
         $lineItemId1 = $cartObj->cartService()->decode($cart['lines']['edges'][0]['node']['id']);
@@ -415,12 +505,61 @@ class CartTest extends TestCase
         // Assert that the first line item was updated
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(4, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 2);
+        $this->cartAssertLineItem($cart, 1, 4);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_update_multiple_lines_with_attributes_in_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        $variantId1 = $this->getNewVariantId();
+        $variantId2 = $this->getNewVariantId();
+
+        // Add two items to the cart
+        $ret = $cartObj->addLines([
+            [$variantId1 => ['quantity' => 1, 'attributes' => ['mvr' => 0]]],
+            [$variantId2 => 2],
+        ]);
+        $this->assertTrue($ret);
+
+        // Assert that the items were added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1, ['mvr' => 0]);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
+
+        // Get line items
+        $lineItemId1 = $cartObj->cartService()->decode($cart['lines']['edges'][0]['node']['id']);
+        $lineItemId2 = $cartObj->cartService()->decode($cart['lines']['edges'][1]['node']['id']);
+
+        // Update line items
+        $ret = $cartObj->updateLines([
+            [$lineItemId1 => ['quantity' => 1, 'attributes' => ['mvr' => 1]]],
+            [$lineItemId2 => 2],
+        ]);
+        $this->assertTrue($ret);
+
+        // Assert that the first line item was updated
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 2, ['mvr' => 1]);
+        $this->cartAssertLineItem($cart, 1, 4);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -433,8 +572,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         $variantId1 = $this->getNewVariantId();
         $variantId2 = $this->getNewVariantId();
@@ -449,12 +588,10 @@ class CartTest extends TestCase
         // Assert that the items were added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
 
         // Get line item
         $lineItemId1 = $cartObj->cartService()->decode($cart['lines']['edges'][0]['node']['id']);
@@ -465,15 +602,13 @@ class CartTest extends TestCase
         ]);
         $this->assertFalse($ret);
 
-        // Assert that the first line item was updated
+        // Assert that the first line item was not updated
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -486,8 +621,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         $variantId1 = $this->getNewVariantId();
         $variantId2 = $this->getNewVariantId();
@@ -502,12 +637,10 @@ class CartTest extends TestCase
         // Assert that the items were added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
 
         // Get line items
         $lineItemId1 = $cartObj->cartService()->decode($cart['lines']['edges'][0]['node']['id']);
@@ -522,11 +655,10 @@ class CartTest extends TestCase
         // Assert that the first line item was removed
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(1, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][0]['node']['quantity']);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 2);
         $this->assertEquals($lineItemId2, $cartObj->cartService()->decode($cart['lines']['edges'][0]['node']['id'])); // This was previously second line item
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -539,8 +671,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         $variantId1 = $this->getNewVariantId();
         $variantId2 = $this->getNewVariantId();
@@ -555,12 +687,10 @@ class CartTest extends TestCase
         // Assert that the items were added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
 
         // Remove non-existing line items
         $ret = $cartObj->removeLines([
@@ -571,12 +701,10 @@ class CartTest extends TestCase
         // Assert that the non-existing line item wasn't removed
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
     }
 
     /**
@@ -589,8 +717,8 @@ class CartTest extends TestCase
         // Create new cart
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
 
         $variantId1 = $this->getNewVariantId();
         $variantId2 = $this->getNewVariantId();
@@ -605,12 +733,10 @@ class CartTest extends TestCase
         // Assert that the items were added
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(2, $cart['lines']['edges']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
-        $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
-        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
 
         // Empty cart
         $ret = $cartObj->emptyCart();
@@ -619,8 +745,8 @@ class CartTest extends TestCase
         // Assert that all items were removed
         $cart = $cartObj->getCart();
         $this->assertNotNull($cart);
-        $this->assertCount(0, $cart['lines']['edges']);
-        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
     }
 
     /**

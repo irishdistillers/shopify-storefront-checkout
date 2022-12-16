@@ -108,7 +108,7 @@ class MockCart
      * @return array|null
      * @throws Exception
      */
-    protected function addOrUpdateLineItem(?array $cart, string $currency, string $variantId, int $quantity): ?array
+    protected function addOrUpdateLineItem(?array $cart, string $currency, string $variantId, int $quantity, array $attributes): ?array
     {
         if (! $cart) {
             return $cart;
@@ -123,6 +123,11 @@ class MockCart
                     if ($this->decode($node['merchandise']['id']) === $variantId) {
                         // Update quantity
                         $cart['lines']['edges'][$index]['node']['quantity'] += $quantity;
+                        // Update attributes
+                        $cart['lines']['edges'][$index]['node']['attributes'] = array_merge(
+                            $cart['lines']['edges'][$index]['node']['attributes'],
+                            $attributes
+                        );
                         $variantIsAlreadyInCartLines = true;
                         break;
                     }
@@ -145,7 +150,7 @@ class MockCart
         $cart['lines']['edges'][] = [
             'node' => [
                 'id' => $this->encode($this->shopify->ids()->createRandomId(self::CART_LINE_PREFIX)),
-                'attributes' => [],
+                'attributes' => $attributes,
                 'quantity' => $quantity,
                 'discountAllocations' => [],
                 'estimatedCost' => [
@@ -197,9 +202,10 @@ class MockCart
      * @param array|null $cart
      * @param string $lineItemId
      * @param int $quantity
+     * @param array $attributes
      * @return array|null
      */
-    protected function updateLineItem(?array $cart, string $lineItemId, int $quantity): ?array
+    protected function updateLineItem(?array $cart, string $lineItemId, int $quantity, array $attributes): ?array
     {
         if (! $cart) {
             return $cart;
@@ -214,6 +220,11 @@ class MockCart
                     if ($this->decode($node['id']) === $lineItemId) {
                         // Update quantity
                         $cart['lines']['edges'][$index]['node']['quantity'] += $quantity;
+                        // Update attributes
+                        $cart['lines']['edges'][$index]['node']['attributes'] = array_merge(
+                            $cart['lines']['edges'][$index]['node']['attributes'],
+                            $attributes
+                        );
                         break;
                     }
                 }
@@ -366,8 +377,9 @@ class MockCart
         foreach ($lines as $line) {
             $variantId = $line['merchandiseId'] ?? null;
             $quantity = (int) $line['quantity'] ?? 0;
+            $attributes = $line['attributes'] ?? [];
             if ($variantId && $quantity > 0) {
-                $cart = $this->addOrUpdateLineItem($cart, $currency, $variantId, $quantity);
+                $cart = $this->addOrUpdateLineItem($cart, $currency, $variantId, $quantity, $attributes);
             } else {
                 // Error: variant ID is null or quantity is below 1
                 return null;
@@ -404,8 +416,9 @@ class MockCart
         foreach ($lines as $line) {
             $lineItemId = $line['id'] ?? null;
             $quantity = (int) $line['quantity'] ?? 0;
+            $attributes = $line['attributes'] ?? [];
             if ($lineItemId && $quantity > 0) {
-                $cart = $this->updateLineItem($cart, $lineItemId, $quantity);
+                $cart = $this->updateLineItem($cart, $lineItemId, $quantity, $attributes);
             } else {
                 // Error: line item ID is null or quantity is below 1
                 return null;

@@ -33,6 +33,25 @@ composer require irishdistillers/shopify-storefront-checkout
 
 ## Develop
 
+### Tests
+
+```shell
+# Run unit tests
+composer test
+
+# Run coverage
+composer test-coverage
+
+# Run coverage and update badge
+composer test-badge
+```
+
+### Code formatting
+
+```shell
+composer php-cs-fixer
+```
+
 ### Versioning
 
 ```shell

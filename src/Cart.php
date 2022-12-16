@@ -103,11 +103,12 @@ class Cart
      *
      * @param string $variantId Variant ID with gid:// prefix
      * @param int $quantity Quantity must be >= 1
+     * @param array $attributes
      * @return bool
      */
-    public function addLine(string $variantId, int $quantity): bool
+    public function addLine(string $variantId, int $quantity, array $attributes = []): bool
     {
-        return (bool) $this->cartService->addLine($this->cartId, $variantId, $quantity);
+        return (bool) $this->cartService->addLine($this->cartId, $variantId, $quantity, $attributes);
     }
 
     /**
@@ -126,11 +127,12 @@ class Cart
      *
      * @param string|null $lineItemId Line item ID with gid:// prefix
      * @param int $quantity Quantity must be >= 1
+     * @param array $attributes
      * @return bool
      */
-    public function updateLine(?string $lineItemId, int $quantity): bool
+    public function updateLine(?string $lineItemId, int $quantity, array $attributes = []): bool
     {
-        return (bool) $this->cartService->updateLine($this->cartId, $lineItemId, $quantity);
+        return (bool) $this->cartService->updateLine($this->cartId, $lineItemId, $quantity, $attributes);
     }
 
     /**

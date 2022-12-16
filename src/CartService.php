@@ -284,14 +284,18 @@ QUERY;
      * @param string|null $cartId
      * @param string $variantId Variant ID with gid:// prefix
      * @param int $quantity Quantity must be >= 1
+     * @param array $attributes Attributes, e.g. ['mvr' => 1]
      * @return string|null
      */
-    public function addLine(?string $cartId, string $variantId, int $quantity): ?string
+    public function addLine(?string $cartId, string $variantId, int $quantity, array $attributes = []): ?string
     {
         return $this->addLines(
             $cartId,
             [
-                [$variantId => $quantity],
+                [$variantId => [
+                    'quantity' => $quantity,
+                    'attributes' => $attributes,
+                ]],
             ]
         );
     }
@@ -299,11 +303,17 @@ QUERY;
     /**
      * Add line items.
      *
+     * Line items are valid in two formats:
+     * 1) without attributes
+     *    [ variant_id => quantity ] e.g. [ ['gid://.../variant_id' => 1 ], ... ]
+     * 2) with attributes
+     *    [ variant_id => quantity => quantity, attributes => attributes ] e.g. [ ['gid://.../variant_id' => ['quantity' => 1, 'attributes' => [ ... ] ], ... ]
+     *
      * @param string|null $cartId
-     * @param array $variantIdsWithQuantity Array with variant IDs and quantity, e.g. [ ['gid://.../variant_id' => quantity], ...]
+     * @param array $variantIdsWithQuantityAndAttributes See above docs
      * @return string|null
      */
-    public function addLines(?string $cartId, array $variantIdsWithQuantity): ?string
+    public function addLines(?string $cartId, array $variantIdsWithQuantityAndAttributes): ?string
     {
         $query = <<<'QUERY'
  mutation cartLinesAdd($lines: [CartLineInput!]!, $cartId: ID!) {
@@ -321,11 +331,20 @@ QUERY;
 
         // Prepare lines
         $lines = [];
-        foreach ($variantIdsWithQuantity as $row) {
-            foreach ($row as $variantId => $quantity) {
+        foreach ($variantIdsWithQuantityAndAttributes as $row) {
+            foreach ($row as $variantId => $values) {
+                $attributes = [];
+                if (is_array($values)) {
+                    $quantity = $values['quantity'] ?? 0;
+                    $attributes = $values['attributes'] ?? [];
+                } else {
+                    $quantity = $values;
+                }
+
                 $lines[] = [
                     'merchandiseId' => $variantId,
                     'quantity' => $quantity,
+                    'attributes' => $attributes,
                 ];
             }
         }
@@ -351,14 +370,18 @@ QUERY;
      * @param string|null $cartId
      * @param string|null $lineItemId Line item ID with gid:// prefix
      * @param int $quantity Quantity must be >= 1
+     * @param array $attributes
      * @return string|null
      */
-    public function updateLine(?string $cartId, ?string $lineItemId, int $quantity): ?string
+    public function updateLine(?string $cartId, ?string $lineItemId, int $quantity, array $attributes = []): ?string
     {
         return $this->updateLines(
             $cartId,
             [
-                [$lineItemId => $quantity],
+                [$lineItemId => [
+                    'quantity' => $quantity,
+                    'attributes' => $attributes,
+                ]],
             ]
         );
     }
@@ -366,11 +389,16 @@ QUERY;
     /**
      * Update line items.
      *
+     * Line items are valid in two formats:
+     * 1) without attributes
+     *    [ line_item_id => quantity ] e.g. [ ['gid://.../line_item_id' => 1 ], ... ]
+     * 2) with attributes
+     *    [ line_item_id => quantity => quantity, attributes => attributes ] e.g. [ ['gid://.../line_item_id' => ['quantity' => 1, 'attributes' => [ ... ] ], ... ]
      * @param string|null $cartId
-     * @param array $lineItemIdsWithQuantity E.g. [ [ 'gid://.../line_item_id' => quantity ], [ 'gid://.../line_item_id' => quantity ], ... ]
+     * @param array $lineItemIdsWithQuantityAndAttributes See above docs
      * @return string|null
      */
-    public function updateLines(?string $cartId, array $lineItemIdsWithQuantity): ?string
+    public function updateLines(?string $cartId, array $lineItemIdsWithQuantityAndAttributes): ?string
     {
         $query = <<<'QUERY'
  mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
@@ -388,11 +416,20 @@ QUERY;
 
         // Prepare lines
         $lines = [];
-        foreach ($lineItemIdsWithQuantity as $row) {
-            foreach ($row as $id => $quantity) {
+        foreach ($lineItemIdsWithQuantityAndAttributes as $row) {
+            foreach ($row as $id => $values) {
+                $attributes = [];
+                if (is_array($values)) {
+                    $quantity = $values['quantity'];
+                    $attributes = $values['attributes'];
+                } else {
+                    $quantity = $values;
+                }
+
                 $lines[] = [
                     'id' => $id,
                     'quantity' => $quantity,
+                    'attributes' => $attributes,
                 ];
             }
         }
