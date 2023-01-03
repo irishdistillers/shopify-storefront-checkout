@@ -107,6 +107,38 @@ class CartTest extends TestCase
         $this->assertNull($cart);
     }
 
+    public function test_get_existing_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+
+        // Add line item
+        // Add item to the cart
+        $ret = $cartObj->addLine($this->getNewVariantId(), 1);
+        $this->assertTrue($ret);
+
+        // Assert that the item was added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertTotalIsSet($cart);
+
+        // Create another cart
+        $cartObj2 = $this->getCart();
+        $this->assertNotEquals($cartObj->getCartId(), $cartObj2->getCartId());
+
+        // Assign existing cart ID in newly created cart
+        $cartObj2->setCartId($cartObj->getCartId());
+
+        // Assert that the newly created cart object matches the existing cart
+        $this->assertEquals($cartObj->getCartId(), $cartObj2->getCartId());
+        $this->assertEquals($cartObj->getCart(), $cartObj2->getCart());
+    }
+
     /**
      * @group shopify_cart
      */

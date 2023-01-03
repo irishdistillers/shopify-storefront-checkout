@@ -67,7 +67,7 @@ class Cart
     }
 
     /**
-     * Get currenty country code.
+     * Get current country code.
      *
      * @return string|null
      */
@@ -84,6 +84,20 @@ class Cart
     public function getNewCart(): ?array
     {
         $this->cartId = $this->cartService->getNewCart($this->countryCode);
+
+        return $this->getCart();
+    }
+
+    /**
+     * Set existing cart ID.
+     * 
+     *
+     * @param string $cartId
+     * @return array|null
+     */
+    public function setCartId(string $cartId): ?array
+    {
+        $this->cartId = $cartId;
 
         return $this->getCart();
     }
