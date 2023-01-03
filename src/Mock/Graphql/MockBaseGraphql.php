@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\ShopifyStorefrontCheckout\Mock\Graphql;
+namespace Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql;
 
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\Query\MockGraphqlQuery;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockShopify;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 use Irishdistillers\ShopifyStorefrontCheckout\Traits\ShopifyUtilsTrait;
-use Tests\ShopifyStorefrontCheckout\Mock\Graphql\Query\MockGraphqlQuery;
-use Tests\ShopifyStorefrontCheckout\Mock\MockShopify;
 
 abstract class MockBaseGraphql
 {

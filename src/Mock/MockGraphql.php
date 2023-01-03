@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\ShopifyStorefrontCheckout\Mock;
+namespace Irishdistillers\ShopifyStorefrontCheckout\Mock;
 
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\MokCartGraphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
-use Tests\ShopifyStorefrontCheckout\Mock\Graphql\MokCartGraphql;
 
 class MockGraphql
 {

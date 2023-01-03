@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\ShopifyStorefrontCheckout\Mock\Graphql\Query;
+namespace Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\Query;
 
 class MockGraphqlQuery
 {

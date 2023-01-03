@@ -1,14 +1,14 @@
 <?php
 
-namespace Tests\ShopifyStorefrontCheckout\Mock;
+namespace Irishdistillers\ShopifyStorefrontCheckout\Mock;
 
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockCart;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockDiscountCodes;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockIds;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockMarkets;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockProducts;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockStore;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
-use Tests\ShopifyStorefrontCheckout\Mock\Shopify\MockCart;
-use Tests\ShopifyStorefrontCheckout\Mock\Shopify\MockDiscountCodes;
-use Tests\ShopifyStorefrontCheckout\Mock\Shopify\MockIds;
-use Tests\ShopifyStorefrontCheckout\Mock\Shopify\MockMarkets;
-use Tests\ShopifyStorefrontCheckout\Mock\Shopify\MockProducts;
-use Tests\ShopifyStorefrontCheckout\Mock\Shopify\MockStore;
 
 class MockShopify
 {
@@ -74,7 +74,7 @@ class MockShopify
     /**
      * Get mocked Shopify Ids provider.
      *
-     * @return MockIds
+     * @return \Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockIds
      */
     public function ids(): MockIds
     {
@@ -84,7 +84,7 @@ class MockShopify
     /**
      * Get mocked markets provider.
      *
-     * @return MockMarkets
+     * @return \Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockMarkets
      */
     public function market(): MockMarkets
     {

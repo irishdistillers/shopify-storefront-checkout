@@ -6,8 +6,8 @@ namespace Tests\ShopifyStorefrontCheckout;
 
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use PHPUnit\Framework\TestCase;
-use Tests\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class CartServiceTest extends TestCase

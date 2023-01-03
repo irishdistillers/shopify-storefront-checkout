@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\ShopifyStorefrontCheckout\Mock\Shopify;
+namespace Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify;
 
 class MockStore
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\ShopifyStorefrontCheckout\Mock\Shopify;
+namespace Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify;
 
 use Exception;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockShopify;
 use Irishdistillers\ShopifyStorefrontCheckout\Traits\ShopifyUtilsTrait;
-use Tests\ShopifyStorefrontCheckout\Mock\MockShopify;
 
 class MockProducts
 {

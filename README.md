@@ -33,6 +33,10 @@ composer require irishdistillers/shopify-storefront-checkout
 
 ## Develop
 
+### Mocking Shopify and Graphql
+
+A mocked version of Graphql is available in `/Mock`. It can be extended, if needed.
+
 ### Tests
 
 ```shell

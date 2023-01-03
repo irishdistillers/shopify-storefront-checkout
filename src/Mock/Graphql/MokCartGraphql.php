@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\ShopifyStorefrontCheckout\Mock\Graphql;
+namespace Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql;
 
 use Exception;
-use Tests\ShopifyStorefrontCheckout\Mock\Graphql\Query\MockGraphqlQuery;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\Query\MockGraphqlQuery;
 
 class MokCartGraphql extends MockBaseGraphql
 {
