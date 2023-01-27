@@ -90,7 +90,7 @@ class Cart
 
     /**
      * Set existing cart ID.
-     * 
+     *
      *
      * @param string $cartId
      * @return array|null

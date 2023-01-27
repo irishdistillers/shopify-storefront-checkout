@@ -8,7 +8,7 @@ Library that embeds Shopify Storefront Checkout
 
 Details:
 
-- Storefront API version: `2022-04`
+- Storefront API version: `2023-01` (latest)
 
 ## Install
 
@@ -77,22 +77,34 @@ You can access cart and checkout in two ways:
 - each operation will return a cart ID
 - cart ID can be used to change cart items and attributes, and to get checkout URL
 
+When to use it:
+
+- you need to handle different carts at the same time
+
 Pros:
-- cart service allows to handle multiple carts at the same time
+
+- cart service allows to handle **multiple** carts at the same time
 
 Cons:
-- storing and passing cart ID and country code (market) to methods can be an overhead 
+
+- storing and passing cart ID and country code (market) to methods **can be an overhead **
 
 ### Cart object
 
 - cart object is a wrapper for the cart service
 - cart ID and country code (market) are stored in the object itself
 
+When to use it:
+
+- you need to handle a single cart
+
 Pros:
+
 - it's not necessary to pass cart ID and country code (market) to each function
 
 Cons:
-- cart object allows to handle a unique cart per instance
+
+- cart object allows to handle **a unique cart** per instance
 
 ### Sample code
 
@@ -106,7 +118,7 @@ use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 $storeFrontAccessToken = 'b3f1f61693cae*******************';
 
 // Create context
-$context = new Context('my_shop.shopify.com', '2022-04', $storeFrontAccessToken);
+$context = new Context('my_shop.shopify.com', '2023-01', $storeFrontAccessToken);
 
 // Create cart service
 $cartService = new CartService($context);
@@ -144,7 +156,7 @@ use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 $storeFrontAccessToken = 'b3f1f61693cae*******************';
 
 // Create context
-$context = new Context('my_shop.shopify.com', '2022-04', $storeFrontAccessToken);
+$context = new Context('my_shop.shopify.com', '2023-01', $storeFrontAccessToken);
 
 // Create cart object
 $cartObj = new Cart($context);
@@ -173,5 +185,111 @@ $cartObj->updateDiscountCodes('TENPERCENT');
 $checkoutUrl = $cartObj->setCountryCode('GB')->getCheckoutUrl();
 
 // Checkout URL is immutable. Once paid, the URL won't work anymore.
+```
+
+## Laravel integration
+
+Laravel integration is not unit tested.
+
+**Important:** Laravel is not required in composer, to allow this package to be generic and usable e.g. in WordPress.
+
+### Configuration
+
+`.env`
+
+```dotenv
+# API version
+SHOPIFY_API_VERSION=2023-01
+
+# Only for admin Graphql API. Not used by cart.
+SHOPIFY_APP_SECRET=replace_me
+
+# Storefront Access token. Required by cart
+SHOPIFY_STORE_FRONT_ACCESS_TOKEN=replace_me
+
+# Base URL of the shop
+SHOPIFY_SHOP_BASE_URL="shop_name.myshopify.com"
+
+# Mock Graphql. In Laravel unit tests, mock is automatically enabled. 
+SHOPIFY_MOCK="0"
+```
+
+`config/shopify.php`
+
+```php
+<?php
+return [
+
+    'credentials' => [
+        // Only if using admin Graphql API
+        'app_signature' => env('SHOPIFY_APP_SECRET'),
+        
+        // Storefront access token
+        'store_front_access_token' => env('SHOPIFY_STORE_FRONT_ACCESS_TOKEN'),
+    ],
+    
+    'shop' => [
+        'shop_base_url' => env('SHOPIFY_SHOP_BASE_URL'),
+        
+        'api_version' => env('SHOPIFY_API_VERSION'),
+    ],
+    
+    // This will enable mock mode
+    'mock' => (bool) env('SHOPIFY_MOCK'),
+    
+];
+```
+
+### Usage
+
+#### Helper
+
+Use `ShopifyCartHelper` to create a cart service or a cart object.
+
+It will load configuration, as described above.
+
+```php
+use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyCartHelper;
+
+// Create cart service
+$cartService = ShopifyCartHelper::getNewCartService();
+
+// Create cart object
+$cartObject = ShopifyCartHelper::getNewCart();
+```
+
+#### Console command
+
+A Laravel command for the cart is already available.
+
+Simply extend it in your project, assigning command signature and description.
+
+```php
+use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Console\Commands\ShopifyCartCommand;
+
+class ShopifyCart extends ShopifyCartCommand
+{
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'shopify:cart';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Shopify cart create';
+    
+}
+```
+
+Run it
+
+```shell
+php artisan shopify:cart
 ```
 
