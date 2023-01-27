@@ -15,6 +15,7 @@ trait AssertCartTrait
         if ($lineItem) {
             $lineItemNode = $lineItem['node'];
             $this->assertNotEquals('0.0', $lineItemNode['merchandise']['priceV2']['amount']);
+            $this->assertMatchesRegularExpression('/^gid:/', base64_decode($lineItemNode['merchandise']['product']['variants']['edges'][0]['node']['id']));
             $this->assertEquals($expectedQuantity, $lineItemNode['quantity']);
             if (count($expectedAttributes)) {
                 $this->assertEquals($expectedAttributes, $lineItemNode['attributes']);

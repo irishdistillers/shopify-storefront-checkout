@@ -292,7 +292,7 @@ QUERY;
         return $this->addLines(
             $cartId,
             [
-                [$variantId => [
+                [$this->normaliseVariantId($variantId) => [
                     'quantity' => $quantity,
                     'attributes' => $attributes,
                 ]],
@@ -342,7 +342,7 @@ QUERY;
                 }
 
                 $lines[] = [
-                    'merchandiseId' => $variantId,
+                    'merchandiseId' => $this->normaliseVariantId($variantId),
                     'quantity' => $quantity,
                     'attributes' => $attributes,
                 ];

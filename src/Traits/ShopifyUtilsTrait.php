@@ -21,4 +21,13 @@ trait ShopifyUtilsTrait
 
         return $id;
     }
+
+    protected function normaliseVariantId(string $variantId): string
+    {
+        if (! preg_match('/^gid:/', $variantId)) {
+            $variantId = 'gid://shopify/ProductVariant/'.$variantId;
+        }
+
+        return $variantId;
+    }
 }

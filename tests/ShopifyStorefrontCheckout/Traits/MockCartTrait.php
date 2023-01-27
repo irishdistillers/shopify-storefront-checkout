@@ -16,6 +16,11 @@ trait MockCartTrait
         return 'gid://shopify/ProductVariant/'.md5(uniqid());
     }
 
+    protected function getNewVariantIdWithoutGidPrefix(): string
+    {
+        return md5(uniqid());
+    }
+
     protected function getNewLineItemId(): string
     {
         return 'gid://shopify/CartLine/'.md5(uniqid());

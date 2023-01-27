@@ -360,6 +360,176 @@ class CartTest extends TestCase
     /**
      * @group shopify_cart
      */
+    public function test_add_single_line_without_gid_prefix_to_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        // Add item to the cart
+        $ret = $cartObj->addLine($this->getNewVariantIdWithoutGidPrefix(), 1);
+        $this->assertTrue($ret);
+
+        // Assert that the item was added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_add_single_line_without_gid_prefix_with_attributes_to_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        // Add item to the cart
+        $ret = $cartObj->addLine($this->getNewVariantIdWithoutGidPrefix(), 1, ['mvr' => 1]);
+        $this->assertTrue($ret);
+
+        // Assert that the item was added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 1, ['mvr' => 1]);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_add_single_line_without_gid_prefix_to_cart_object_using_variant_already_in_lines()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        $variantId = $this->getNewVariantIdWithoutGidPrefix();
+
+        // Add item to the cart
+        $ret = $cartObj->addLine($variantId, 1);
+        $this->assertTrue($ret);
+
+        // Assert that the item was added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertTotalIsSet($cart);
+
+        // Add again the same variant
+        $ret = $cartObj->addLine($variantId, 2);
+        $this->assertTrue($ret);
+
+        // Assert that the item was updated
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 1);
+        $this->cartAssertLineItem($cart, 0, 3);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_do_not_add_single_line_without_gid_prefix_to_cart_object_with_invalid_quantity()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        // Add item with invalid quantity to the cart
+        $ret = $cartObj->addLine($this->getNewVariantIdWithoutGidPrefix(), 0);
+        $this->assertFalse($ret);
+
+        // Assert that the item was not added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_add_multiple_lines_without_gid_prefix_to_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        // Add two items to the cart
+        $ret = $cartObj->addLines([
+            [$this->getNewVariantIdWithoutGidPrefix() => 1],
+            [$this->getNewVariantIdWithoutGidPrefix() => 2],
+        ]);
+        $this->assertTrue($ret);
+
+        // Assert that the items were added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_add_multiple_lines_without_gid_prefix_with_attributes_to_cart_object()
+    {
+        $cartObj = $this->getCart();
+
+        // Create new cart
+        $cart = $cartObj->getNewCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 0);
+        $this->cartAssertTotalIsEmpty($cart);
+
+        // Add two items to the cart
+        $ret = $cartObj->addLines([
+            [$this->getNewVariantIdWithoutGidPrefix() => ['quantity' => 1, 'attributes' => ['mvr' => 1]]],
+            [$this->getNewVariantIdWithoutGidPrefix() => 2],
+        ]);
+        $this->assertTrue($ret);
+
+        // Assert that the items were added
+        $cart = $cartObj->getCart();
+        $this->assertNotNull($cart);
+        $this->cartAssertLineItemCount($cart, 2);
+        $this->cartAssertLineItem($cart, 0, 1, ['mvr' => 1]);
+        $this->cartAssertLineItem($cart, 1, 2);
+        $this->cartAssertTotalIsSet($cart);
+    }
+
+    /**
+     * @group shopify_cart
+     */
     public function test_update_single_line_in_cart_object()
     {
         $cartObj = $this->getCart();

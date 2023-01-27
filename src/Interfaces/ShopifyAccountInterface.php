@@ -12,5 +12,5 @@ interface ShopifyAccountInterface
 
     public const APP_SIGNATURE = 'app_signature';
 
-    public const DEFAULT_API_VERSION = '2022-03';
+    public const DEFAULT_API_VERSION = '2023-01';
 }
