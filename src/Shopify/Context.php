@@ -3,6 +3,7 @@
 namespace Irishdistillers\ShopifyStorefrontCheckout\Shopify;
 
 use ArrayObject;
+use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyAccountInterface;
 
 /**
@@ -23,6 +24,8 @@ class Context
      * @param string $apiVersion API version, e.g. 2021-04
      * @param string|null $shopifyStoreFrontAccessToken Storefront access token. Required to use Storefront Graphql API (e.g. cart).
      * @param string|null $shopifyAccessToken Admin access token. Required to use admin Graphql API.
+     *
+     * @throws Exception
      */
     public function __construct(string $shopBaseUrl, string $apiVersion, ?string $shopifyStoreFrontAccessToken = null, ?string $shopifyAccessToken = null)
     {
@@ -32,11 +35,21 @@ class Context
         $this->shopifyAccessToken = $shopifyAccessToken;
     }
 
+    /**
+     * @throws Exception
+     */
     private function normaliseBaseUrl(string $shopBaseUrl): string
     {
-        return substr($shopBaseUrl, 0, 4) === 'http' ?
-            (parse_url($shopBaseUrl, PHP_URL_HOST) ?: '') :
-            $shopBaseUrl;
+        if ( substr($shopBaseUrl, 0, 4) === 'http') {
+            $url = parse_url($shopBaseUrl, PHP_URL_HOST);
+            if (!$url) {
+                throw new Exception('Shop full URL is not valid');
+            }
+
+            return $url;
+        }
+
+        return $shopBaseUrl;
     }
 
     public function setShopifyStoreFrontAccessToken(?string $shopifyStoreFrontAccessToken): self
@@ -79,6 +92,7 @@ class Context
      * @param ArrayObject $config
      * @param array $fallback
      * @return Context
+     * @throws Exception
      */
     public static function createFromConfig(ArrayObject $config, array $fallback = []): self
     {

@@ -3,9 +3,11 @@
 namespace Tests\ShopifyStorefrontCheckout\Shopify;
 
 use ArrayObject;
+use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyAccountInterface;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 class ContextTest extends TestCase
 {
@@ -27,6 +29,14 @@ class ContextTest extends TestCase
         $this->assertEquals('2023-01', $context->getApiVersion());
         $this->assertEquals('dummy_store_front_token', $context->getShopifyStoreFrontAccessToken());
         $this->assertEquals('dummy_access_token', $context->getShopifyAccessToken());
+    }
+
+    public function test_do_not_create_shopify_context_with_wrong_full_url()
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Shop full URL is not valid');
+
+        $context = new Context('http://@/api/admin/2022-01', '2023-01', 'dummy_store_front_token', 'dummy_access_token');
     }
 
     public function test_create_shopify_context_with_valid_config_and_empty_fallback()
@@ -95,7 +105,7 @@ class ContextTest extends TestCase
 
         $fallback = [];
 
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
 
         Context::createFromConfig($config, $fallback);
     }

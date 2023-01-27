@@ -3,6 +3,7 @@
 namespace Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers;
 
 use ArrayObject;
+use Exception;
 use Illuminate\Support\Facades\App;
 use Irishdistillers\ShopifyStorefrontCheckout\Cart;
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
@@ -17,13 +18,16 @@ class ShopifyCartHelper
 {
     protected static ?MockGraphql $mock = null;
 
+    /**
+     * @throws Exception
+     */
     public static function getContext(?ArrayObject $config = null): Context
     {
         return Context::createFromConfig($config ?? new ArrayObject(), [
-            config('storefront-checkout.shop_base_url'),
-            config('storefront-checkout.api_version', ShopifyAccountInterface::DEFAULT_API_VERSION),
-            config('storefront-checkout.store_front_access_token'),
-            config('storefront-checkout.app_signature'),
+            ShopifyAccountInterface::SHOPIFY_BASE_URL => config('storefront-checkout.shop_base_url'),
+            ShopifyAccountInterface::API_VERSION => config('storefront-checkout.api_version', ShopifyAccountInterface::DEFAULT_API_VERSION),
+            ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN => config('storefront-checkout.store_front_access_token'),
+            ShopifyAccountInterface::APP_SIGNATURE => config('storefront-checkout.app_signature'),
         ]);
     }
 
@@ -43,6 +47,9 @@ class ShopifyCartHelper
         return null;
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getNewCartService(?ArrayObject $config = null, bool $mock = false): CartService
     {
         $context = self::getContext($config);
@@ -54,6 +61,9 @@ class ShopifyCartHelper
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getNewCart(?ArrayObject $config = null, bool $mock = false): Cart
     {
         $context = self::getContext($config);

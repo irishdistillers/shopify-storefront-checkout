@@ -429,36 +429,43 @@ class ShopifyCartCommand extends Command
      */
     public function handle(): int
     {
-        $this->cart = ShopifyCartHelper::getNewCartService();
+        try {
+            $this->cart = ShopifyCartHelper::getNewCartService();
 
-        while (true) {
-            $this->alert('Shopify Cart - Please make a choice');
+            while (true) {
+                $this->alert('Shopify Cart - Please make a choice');
 
-            $action = $this->askChoiceWithAssociatedOptions('Choose an action', $this->actions());
+                $action = $this->askChoiceWithAssociatedOptions('Choose an action', $this->actions());
 
-            // Exit loop
-            if ($action === 'exit') {
-                $this->line('Bye!');
-                $this->newLine();
-                break;
-            }
-
-            $method = 'handle_'.$action;
-            if (method_exists($this, $method)) {
-                try {
-                    $this->$method();
-                } catch (Exception $e) {
-                    Log::error('ShopifyCart, action "'.$action.'" failed', ['e' => $e->getMessage()]);
-                    $this->error('Failure: '.$e->getMessage());
+                // Exit loop
+                if ($action === 'exit') {
+                    $this->line('Bye!');
+                    $this->newLine();
+                    break;
                 }
-            } else {
-                $this->error('Required action does not yet exist (to be implemented)');
-                break;
+
+                $method = 'handle_' . $action;
+                if (method_exists($this, $method)) {
+                    try {
+                        $this->$method();
+                    } catch (Exception $e) {
+                        Log::error('ShopifyCart, action "' . $action . '" failed', ['e' => $e->getMessage()]);
+                        $this->error('Failure: ' . $e->getMessage());
+                    }
+                } else {
+                    $this->error('Required action does not yet exist (to be implemented)');
+                    break;
+                }
+
+                $this->newLine();
             }
 
-            $this->newLine();
-        }
+            return 0;
 
-        return 0;
+        } catch(Exception $e) {
+            $this->error('Unable to initialise cart service: ' . $e->getMessage());
+
+            return 1;
+        }
     }
 }
