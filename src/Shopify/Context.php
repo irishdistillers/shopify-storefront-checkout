@@ -26,10 +26,17 @@ class Context
      */
     public function __construct(string $shopBaseUrl, string $apiVersion, ?string $shopifyStoreFrontAccessToken = null, ?string $shopifyAccessToken = null)
     {
-        $this->shopBaseUrl = $shopBaseUrl;
+        $this->shopBaseUrl = $this->normaliseBaseUrl($shopBaseUrl);
         $this->apiVersion = $apiVersion;
         $this->shopifyStoreFrontAccessToken = $shopifyStoreFrontAccessToken;
         $this->shopifyAccessToken = $shopifyAccessToken;
+    }
+
+    private function normaliseBaseUrl(string $shopBaseUrl): string
+    {
+        return substr($shopBaseUrl, 0, 4) === 'http' ?
+            (parse_url($shopBaseUrl, PHP_URL_HOST) ?: '') :
+            $shopBaseUrl;
     }
 
     public function setShopifyStoreFrontAccessToken(?string $shopifyStoreFrontAccessToken): self
