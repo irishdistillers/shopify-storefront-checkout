@@ -67,15 +67,15 @@ class Context
     }
 
     /**
-     * Create Context from config
+     * Create Context from config.
      *
      * @param ArrayObject $config
      * @param array $fallback
      * @return Context
      */
-    public static function createFromConfig(ArrayObject $config, array $fallback = []): Context
+    public static function createFromConfig(ArrayObject $config, array $fallback = []): self
     {
-        return new Context(
+        return new self(
             $config[ShopifyAccountInterface::SHOPIFY_BASE_URL] ?? $fallback[ShopifyAccountInterface::SHOPIFY_BASE_URL] ?? null,
             $config[ShopifyAccountInterface::API_VERSION] ?? $fallback[ShopifyAccountInterface::API_VERSION] ?? ShopifyAccountInterface::DEFAULT_API_VERSION,
             $config[ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN] ?? $fallback[ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN] ?? null,

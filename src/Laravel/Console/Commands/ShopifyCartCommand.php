@@ -21,8 +21,6 @@ class ShopifyCartCommand extends Command
     public function __construct()
     {
         parent::__construct();
-
-        $this->cart = ShopifyCartHelper::getNewCartService();
     }
 
     protected function actions(): array
@@ -431,6 +429,8 @@ class ShopifyCartCommand extends Command
      */
     public function handle(): int
     {
+        $this->cart = ShopifyCartHelper::getNewCartService();
+
         while (true) {
             $this->alert('Shopify Cart - Please make a choice');
 

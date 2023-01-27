@@ -23,7 +23,7 @@ class ShopifyCartHelper
             config('storefront-checkout.shop_base_url'),
             config('storefront-checkout.api_version', ShopifyAccountInterface::DEFAULT_API_VERSION),
             config('storefront-checkout.store_front_access_token'),
-            config('storefront-checkout.app_signature')
+            config('storefront-checkout.app_signature'),
         ]);
     }
 
@@ -33,7 +33,7 @@ class ShopifyCartHelper
         $isMock = $mock || App::runningUnitTests() || config('storefront-checkout.mock') || 'dusk' === env('APP_ENV');
         if ($isMock) {
             // Mock is singleton, in order to store temporarily graphql values in unit tests
-            if (!self::$mock) {
+            if (! self::$mock) {
                 self::$mock = new MockGraphql($context);
             }
 
