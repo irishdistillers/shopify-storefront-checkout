@@ -214,25 +214,23 @@ SHOPIFY_SHOP_BASE_URL="shop_name.myshopify.com"
 SHOPIFY_MOCK="0"
 ```
 
-`config/shopify.php`
+`config/storefront-checkout.php`
 
 ```php
 <?php
 return [
 
-    'credentials' => [
-        // Only if using admin Graphql API
-        'app_signature' => env('SHOPIFY_APP_SECRET'),
-        
-        // Storefront access token
-        'store_front_access_token' => env('SHOPIFY_STORE_FRONT_ACCESS_TOKEN'),
-    ],
+    // Only if using admin Graphql API
+    'app_signature' => env('SHOPIFY_APP_SECRET'),
     
-    'shop' => [
-        'shop_base_url' => env('SHOPIFY_SHOP_BASE_URL'),
-        
-        'api_version' => env('SHOPIFY_API_VERSION'),
-    ],
+    // Storefront access token
+    'store_front_access_token' => env('SHOPIFY_STORE_FRONT_ACCESS_TOKEN'),
+    
+    // Shop base URL, e.g. "my-shop-name.myshopify.com"
+    'shop_base_url' => env('SHOPIFY_SHOP_BASE_URL'),
+    
+    // API version. Use 2023-01 or greater
+    'api_version' => env('SHOPIFY_API_VERSION'),
     
     // This will enable mock mode
     'mock' => (bool) env('SHOPIFY_MOCK'),

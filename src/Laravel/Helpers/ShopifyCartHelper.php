@@ -18,17 +18,17 @@ class ShopifyCartHelper
     public static function getContext(): Context
     {
         return new Context(
-            config('shopify.shop.shop_base_url'),
-            config('shopify.shop.api_version'),
-            config('shopify.credentials.store_front_access_token'),
-            config('shopify.credentials.app_signature')
+            config('storefront-checkout.shop_base_url'),
+            config('storefront-checkout.api_version'),
+            config('storefront-checkout.store_front_access_token'),
+            config('storefront-checkout.app_signature')
         );
     }
 
     protected static function getMock(Context $context): ?array
     {
         // Automatically use mock Graphql if running unit tests or set SHOPIFY_MOCK=1 in configuration
-        $isMock = App::runningUnitTests() || config('shopify.mock') || 'dusk' === env('APP_ENV');
+        $isMock = App::runningUnitTests() || config('storefront-checkout.mock') || 'dusk' === env('APP_ENV');
         if ($isMock) {
             // Mock is singleton, in order to store temporarily graphql values in unit tests
             if (! self::$mock) {
