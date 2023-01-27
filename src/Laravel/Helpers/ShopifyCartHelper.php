@@ -25,10 +25,10 @@ class ShopifyCartHelper
         );
     }
 
-    protected static function getMock(Context $context): ?array
+    protected static function getMock(Context $context, bool $mock = false): ?array
     {
         // Automatically use mock Graphql if running unit tests or set SHOPIFY_MOCK=1 in configuration
-        $isMock = App::runningUnitTests() || config('storefront-checkout.mock') || 'dusk' === env('APP_ENV');
+        $isMock = $mock || App::runningUnitTests() || config('storefront-checkout.mock') || 'dusk' === env('APP_ENV');
         if ($isMock) {
             // Mock is singleton, in order to store temporarily graphql values in unit tests
             if (! self::$mock) {
@@ -41,25 +41,25 @@ class ShopifyCartHelper
         return null;
     }
 
-    public static function getNewCartService(): CartService
+    public static function getNewCartService(bool $mock = false): CartService
     {
         $context = self::getContext();
 
         return new CartService(
             $context,
             app('log')->driver()->getLogger(),
-            self::getMock($context)
+            self::getMock($context, $mock)
         );
     }
 
-    public static function getNewCart(): Cart
+    public static function getNewCart(bool $mock = false): Cart
     {
         $context = self::getContext();
 
         return new Cart(
             $context,
             app('log')->driver()->getLogger(),
-            self::getMock($context)
+            self::getMock($context, $mock)
         );
     }
 }
