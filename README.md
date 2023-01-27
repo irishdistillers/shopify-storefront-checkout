@@ -195,6 +195,8 @@ Laravel integration is not unit tested.
 
 ### Configuration
 
+**Important:** Configuration is optional. It can be overridden, when creating cart service or cart object.
+
 `.env`
 
 ```dotenv
@@ -244,16 +246,41 @@ return [
 
 Use `ShopifyCartHelper` to create a cart service or a cart object.
 
+**Scenario 1: load configuration from `.env`**
+
 It will load configuration, as described above.
 
 ```php
 use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyCartHelper;
 
-// Create cart service
+// Create cart service, loading .env configuration
 $cartService = ShopifyCartHelper::getNewCartService();
 
-// Create cart object
+// Create cart object, loading .env configuration
 $cartObject = ShopifyCartHelper::getNewCart();
+```
+
+**Scenario 2: assign dynamically configuration**
+
+```php
+use ArrayObject;
+use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyCartHelper;
+
+// Create cart service, assigning dynamically configuration
+$cartService = ShopifyCartHelper::getNewCartService(new ArrayObject([
+    ShopifyAccountInterface::SHOPIFY_BASE_URL => 'dummy.shopify.com',
+    ShopifyAccountInterface::API_VERSION => '2022-01',
+    ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN => 'dummy_store_front_token',
+    ShopifyAccountInterface::APP_SIGNATURE => 'dummy_access_token',
+]));
+
+// Create cart object, assigning dynamically configuration
+$cartObject = ShopifyCartHelper::getNewCart(new ArrayObject([
+    ShopifyAccountInterface::SHOPIFY_BASE_URL => 'dummy.shopify.com',
+    ShopifyAccountInterface::API_VERSION => '2022-01',
+    ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN => 'dummy_store_front_token',
+    ShopifyAccountInterface::APP_SIGNATURE => 'dummy_access_token',
+]));
 ```
 
 #### Console command

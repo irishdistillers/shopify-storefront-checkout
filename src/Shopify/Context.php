@@ -2,6 +2,9 @@
 
 namespace Irishdistillers\ShopifyStorefrontCheckout\Shopify;
 
+use ArrayObject;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyAccountInterface;
+
 /**
  * Context class for Shopify.
  */
@@ -61,5 +64,22 @@ class Context
     public function getShopifyStoreFrontAccessToken(): ?string
     {
         return $this->shopifyStoreFrontAccessToken;
+    }
+
+    /**
+     * Create Context from config
+     *
+     * @param ArrayObject $config
+     * @param array $fallback
+     * @return Context
+     */
+    public static function createFromConfig(ArrayObject $config, array $fallback = []): Context
+    {
+        return new Context(
+            $config[ShopifyAccountInterface::SHOPIFY_BASE_URL] ?? $fallback[ShopifyAccountInterface::SHOPIFY_BASE_URL] ?? null,
+            $config[ShopifyAccountInterface::API_VERSION] ?? $fallback[ShopifyAccountInterface::API_VERSION] ?? ShopifyAccountInterface::DEFAULT_API_VERSION,
+            $config[ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN] ?? $fallback[ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN] ?? null,
+            $config[ShopifyAccountInterface::APP_SIGNATURE] ?? $fallback[ShopifyAccountInterface::APP_SIGNATURE] ?? null,
+        );
     }
 }
