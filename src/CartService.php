@@ -658,9 +658,9 @@ QUERY;
      * @param string $cartId
      * @return bool
      */
-    public function cartExists(string $cartId): bool
+    public function cartExists(string $cartId, ?string $countryCode): bool
     {
-        $cart = $this->getCart($cartId, null);
+        $cart = $this->getCart($cartId, $countryCode);
 
         return !is_null($cart);
     }

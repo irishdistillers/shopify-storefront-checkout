@@ -928,9 +928,9 @@ class CartServiceTest extends TestCase
         $this->assertNotNull($cartId);
 
         // Assert that valid cart exists
-        $this->assertTrue($cartService->cartExists($cartId));
+        $this->assertTrue($cartService->cartExists($cartId, ShopifyConstants::DEFAULT_MARKET));
 
         // Assert that invalid cart does not exist
-        $this->assertFalse($cartService->cartExists($this->getRandomCartId()));
+        $this->assertFalse($cartService->cartExists($this->getRandomCartId(), ShopifyConstants::DEFAULT_MARKET));
     }
 }
