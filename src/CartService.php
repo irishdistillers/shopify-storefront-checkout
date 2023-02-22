@@ -653,6 +653,19 @@ QUERY;
     }
 
     /**
+     * Check if cart ID exists.
+     *
+     * @param string $cartId
+     * @return bool
+     */
+    public function cartExists(string $cartId): bool
+    {
+        $cart = $this->getCart($cartId, null);
+
+        return !is_null($cart);
+    }
+
+    /**
      * Get checkout URL.
      *
      * @param string|null $cartId

@@ -2,27 +2,13 @@
 
 namespace Tests\ShopifyStorefrontCheckout\Utils;
 
-use Irishdistillers\ShopifyStorefrontCheckout\Cart;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
-use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use PHPUnit\Framework\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class BeautifierTest extends TestCase
 {
     use MockCartTrait;
-
-    protected function getCart(): Cart
-    {
-        $context = $this->getContext();
-        $mock = new MockGraphql($context);
-
-        return new Cart(
-            $context,
-            null,
-            $mock->getEndpoints()
-        );
-    }
 
     protected function validateLineItem(array $lineItem)
     {

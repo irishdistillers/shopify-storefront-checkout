@@ -13,18 +13,6 @@ class CartTest extends TestCase
 {
     use MockCartTrait, AssertCartTrait;
 
-    protected function getCart(): Cart
-    {
-        $context = $this->getContext();
-        $mock = new MockGraphql($context);
-
-        return new Cart(
-            $context,
-            null,
-            $mock->getEndpoints()
-        );
-    }
-
     /**
      * @group shopify_cart
      */

@@ -14,19 +14,6 @@ class CartServiceTest extends TestCase
 {
     use MockCartTrait;
 
-    protected function getCartService(): CartService
-    {
-        $context = $this->getContext();
-        $mock = new MockGraphql($context);
-
-        // Create cart, mocking all Graphql endpoints
-        return new CartService(
-            $context,
-            null,
-            $mock->getEndpoints()
-        );
-    }
-
     /**
      * @group shopify_cart
      */
@@ -927,5 +914,23 @@ class CartServiceTest extends TestCase
         // Do not get checkout URL
         $checkoutUrl = $cartService->getCheckoutUrl('gid://shopify/Cart/'.md5(uniqid()), ShopifyConstants::DEFAULT_MARKET);
         $this->assertNull($checkoutUrl);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_check_if_cart_exists()
+    {
+        $cartService = $this->getCartService();
+
+        // Create cart
+        $cartId = $cartService->getNewCart(ShopifyConstants::DEFAULT_MARKET);
+        $this->assertNotNull($cartId);
+
+        // Assert that valid cart exists
+        $this->assertTrue($cartService->cartExists($cartId));
+
+        // Assert that invalid cart does not exist
+        $this->assertFalse($cartService->cartExists($this->getRandomCartId()));
     }
 }
