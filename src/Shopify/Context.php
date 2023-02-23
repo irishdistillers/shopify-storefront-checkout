@@ -40,9 +40,9 @@ class Context
      */
     private function normaliseBaseUrl(string $shopBaseUrl): string
     {
-        if ( substr($shopBaseUrl, 0, 4) === 'http') {
+        if (substr($shopBaseUrl, 0, 4) === 'http') {
             $url = parse_url($shopBaseUrl, PHP_URL_HOST);
-            if (!$url) {
+            if (! $url) {
                 throw new Exception('Shop full URL is not valid');
             }
 

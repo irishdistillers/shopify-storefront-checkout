@@ -17,6 +17,11 @@ class MockMarkets
         ],
     ];
 
+    protected function getMarket(string $countryCode): array
+    {
+        return self::$markets[$countryCode] ?? self::$markets['IE'];
+    }
+
     public function has(string $countryCode): bool
     {
         return isset(self::$markets[$countryCode]);
@@ -24,21 +29,21 @@ class MockMarkets
 
     public function getCurrency(string $countryCode): string
     {
-        $market = self::$markets[$countryCode ?? 'IE'];
+        $market = $this->getMarket($countryCode);
 
         return $market['currency'];
     }
 
     public function getPrice(float $price, string $countryCode): float
     {
-        $market = self::$markets[$countryCode ?? 'IE'];
+        $market = $this->getMarket($countryCode);
 
         return $price * $market['price_adjustment'];
     }
 
     public function getVat(string $countryCode): float
     {
-        $market = self::$markets[$countryCode ?? 'IE'];
+        $market = $this->getMarket($countryCode);
 
         return $market['vat'];
     }

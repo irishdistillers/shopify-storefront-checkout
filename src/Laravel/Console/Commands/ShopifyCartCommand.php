@@ -444,13 +444,13 @@ class ShopifyCartCommand extends Command
                     break;
                 }
 
-                $method = 'handle_' . $action;
+                $method = 'handle_'.$action;
                 if (method_exists($this, $method)) {
                     try {
                         $this->$method();
                     } catch (Exception $e) {
-                        Log::error('ShopifyCart, action "' . $action . '" failed', ['e' => $e->getMessage()]);
-                        $this->error('Failure: ' . $e->getMessage());
+                        Log::error('ShopifyCart, action "'.$action.'" failed', ['e' => $e->getMessage()]);
+                        $this->error('Failure: '.$e->getMessage());
                     }
                 } else {
                     $this->error('Required action does not yet exist (to be implemented)');
@@ -461,9 +461,8 @@ class ShopifyCartCommand extends Command
             }
 
             return 0;
-
         } catch(Exception $e) {
-            $this->error('Unable to initialise cart service: ' . $e->getMessage());
+            $this->error('Unable to initialise cart service: '.$e->getMessage());
 
             return 1;
         }

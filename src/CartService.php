@@ -656,13 +656,14 @@ QUERY;
      * Check if cart ID exists.
      *
      * @param string $cartId
+     * @param string|null $countryCode
      * @return bool
      */
     public function cartExists(string $cartId, ?string $countryCode): bool
     {
         $cart = $this->getCart($cartId, $countryCode);
 
-        return !is_null($cart);
+        return ! is_null($cart);
     }
 
     /**

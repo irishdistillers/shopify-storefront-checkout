@@ -7,6 +7,7 @@ namespace Tests\ShopifyStorefrontCheckout;
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
+use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 use PHPUnit\Framework\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
@@ -104,7 +105,7 @@ class CartServiceTest extends TestCase
         $cartService = $this->getCartService();
 
         // Get invalid cart
-        $cart = $cartService->getCart('gid://shopify/Cart/'.md5(uniqid()), ShopifyConstants::DEFAULT_MARKET);
+        $cart = $cartService->getCart('gid://shopify/Cart/'.md5(uniqid()), ShopifyConstants::DEFAULT_MARKET, false);
         $this->assertNull($cart);
     }
 
@@ -243,6 +244,20 @@ class CartServiceTest extends TestCase
         $this->assertNotEquals('0.0', $cart['lines']['edges'][1]['node']['merchandise']['priceV2']['amount']);
         $this->assertEquals(2, $cart['lines']['edges'][1]['node']['quantity']);
         $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_do_not_add_multiple_lines_to_non_existing_cart()
+    {
+        $cartService = $this->getCartService();
+
+        $ret = $cartService->addLines(null, [
+            [$this->getNewVariantId() => 1],
+            [$this->getNewVariantId() => 2],
+        ]);
+        $this->assertNull($ret);
     }
 
     /**
@@ -932,5 +947,16 @@ class CartServiceTest extends TestCase
 
         // Assert that invalid cart does not exist
         $this->assertFalse($cartService->cartExists($this->getRandomCartId(), ShopifyConstants::DEFAULT_MARKET));
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_get_cart_context()
+    {
+        $cartService = $this->getCartService();
+
+        $context = $cartService->getContext();
+        $this->assertInstanceOf(Context::class, $context);
     }
 }

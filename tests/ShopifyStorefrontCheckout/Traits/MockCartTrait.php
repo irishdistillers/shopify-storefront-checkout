@@ -9,6 +9,26 @@ use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 
 trait MockCartTrait
 {
+    protected function getDummyShopBaseUrl(): string
+    {
+        return 'dummy.shopify.com';
+    }
+
+    protected function getDummyApiVersion(): string
+    {
+        return '2023-01';
+    }
+
+    protected function getDummyStorefrontToken(): string
+    {
+        return 'dummy_store_front_token';
+    }
+
+    protected function getDummyShopifyAccessToken(): string
+    {
+        return 'dummy_shopify_access_token';
+    }
+
     protected function getCart(): Cart
     {
         $context = $this->getContext();
@@ -36,7 +56,12 @@ trait MockCartTrait
 
     protected function getContext(): Context
     {
-        return new Context('dummy.shopify.com', '2023-01', 'dummy_store_front_token');
+        return new Context(
+            $this->getDummyShopBaseUrl(),
+            $this->getDummyApiVersion(),
+            $this->getDummyStorefrontToken(),
+            $this->getDummyShopifyAccessToken()
+        );
     }
 
     protected function getNewVariantId(): string
@@ -54,7 +79,23 @@ trait MockCartTrait
         return 'gid://shopify/CartLine/'.md5(uniqid());
     }
 
-    protected function getRandomCartId(): string{
+    protected function getRandomCartId(): string
+    {
         return 'gid://shopify/Cart/'.md5(uniqid());
+    }
+
+    protected function getExpectedGraphqlEndpoints(): array
+    {
+        return [
+            'query cart',
+            'mutation cartCreate',
+            'mutation cartBuyerIdentityUpdate',
+            'mutation cartLinesAdd',
+            'mutation cartLinesUpdate',
+            'mutation cartLinesRemove',
+            'mutation cartNoteUpdate',
+            'mutation cartAttributesUpdate',
+            'mutation cartDiscountCodesUpdate',
+        ];
     }
 }

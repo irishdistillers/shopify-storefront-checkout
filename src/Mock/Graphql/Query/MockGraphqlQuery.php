@@ -2,6 +2,8 @@
 
 namespace Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\Query;
 
+use Exception;
+
 class MockGraphqlQuery
 {
     protected array $variables;
@@ -14,6 +16,9 @@ class MockGraphqlQuery
 
     protected array $fields;
 
+    /**
+     * @throws Exception
+     */
     public function __construct(?string $query, ?array $variables)
     {
         $this->variables = $variables ?? [];
@@ -24,6 +29,7 @@ class MockGraphqlQuery
      * Parse Graphql query.
      *
      * @param string|null $query
+     * @throws Exception
      */
     protected function parseQuery(?string $query)
     {
@@ -33,7 +39,7 @@ class MockGraphqlQuery
         $this->fields = [];
 
         if ($query) {
-            $query = array_map('trim', explode("\n", $query));
+            $query = array_filter(array_map('trim', explode("\n", $query)));
 
             if (! count($query)) {
                 // Empty or invalid query
@@ -48,6 +54,11 @@ class MockGraphqlQuery
             // Remove first and last lines
             array_shift($query);
             array_pop($query);
+
+            if (! count($query)) {
+                // Empty or invalid query
+                throw new Exception('Empty query');
+            }
 
             // Get context
             if (substr($query[0], 0, strlen('@inContext')) === '@inContext') {
@@ -67,19 +78,23 @@ class MockGraphqlQuery
             // Get endpoint
             $this->endpoint = trim(str_replace('{', '', $query[0]));
             array_shift($query);
-            array_pop($query);
+            if (trim($query[count($query) - 1]) === '}') {
+                array_pop($query);
+            }
 
             // Get fields
             $current = null;
             foreach ($query as $item) {
                 $item = trim($item);
                 if (substr($item, -1, 1) === '{') {
-                    $current = substr($item, 0, strlen($item) - 1);
+                    $current = trim(substr($item, 0, strlen($item) - 1));
                     $this->fields[$current] = [];
                 } elseif ($item === '}') {
                     $current = null;
                 } elseif ($current) {
                     $this->fields[$current][] = $item;
+                } else {
+                    $this->fields[] = $item;
                 }
             }
         }
@@ -123,5 +138,13 @@ class MockGraphqlQuery
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * @return array
+     */
+    public function getVariables(): array
+    {
+        return $this->variables;
     }
 }

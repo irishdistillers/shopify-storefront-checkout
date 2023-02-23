@@ -5,7 +5,7 @@ namespace Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql;
 use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\Query\MockGraphqlQuery;
 
-class MokCartGraphql extends MockBaseGraphql
+class MockCartGraphql extends MockBaseGraphql
 {
     /**
      * Query cart.

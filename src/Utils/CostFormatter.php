@@ -31,10 +31,10 @@ class CostFormatter
 
     public function estimatedCost(): string
     {
-        if (!empty($this->cart)) {
+        if (! empty($this->cart)) {
             $totalAmount = $this->cart['estimatedCost']['totalAmount'] ?? null;
             if ($totalAmount) {
-                return $this->symbol($totalAmount['currencyCode']) . $totalAmount['amount'];
+                return $this->symbol($totalAmount['currencyCode']).$totalAmount['amount'];
             }
         }
 

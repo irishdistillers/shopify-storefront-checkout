@@ -28,6 +28,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.4|^8.0",
+        "ext-curl": "*",
         "ext-json": "*",
         "monolog/monolog": "^2.3.5"
     },
@@ -43,7 +44,9 @@
             "./vendor/bin/phpunit --testdox tests"
         ],
         "test-coverage": [
-            "@php -dxdebug.mode=coverage ./vendor/bin/phpunit --coverage-html reports/ --process-isolation tests"
+            "@putenv XDEBUG_MODE=coverage",
+            "./vendor/bin/phpunit --coverage-html reports/ --coverage-clover clover.xml --process-isolation tests",
+            "vendor/bin/php-coverage-badger clover.xml coverage.svg"
         ],
         "test-badge": [
             "@php -dxdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover clover.xml --process-isolation tests",

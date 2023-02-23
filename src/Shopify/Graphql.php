@@ -46,7 +46,7 @@ class Graphql
      *
      * @return string
      */
-    protected function getApiPath(): string
+    public function getApiPath(): string
     {
         return 'https://'.$this->context->getShopBaseUrl().
             ($this->useStoreFrontApi ? '' : '/admin').
@@ -88,7 +88,7 @@ class Graphql
      *
      * @return array
      */
-    protected function headers(): array
+    public function headers(): array
     {
         // Prepare headers
         $headers = [

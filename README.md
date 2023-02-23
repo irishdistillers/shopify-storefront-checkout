@@ -31,6 +31,12 @@ Add what follows in the `repository` section:
 composer require irishdistillers/shopify-storefront-checkout
 ```
 
+### Update package
+
+```shell
+composer update irishdistillers/shopify-storefront-checkout
+```
+
 ## Develop
 
 ### Mocking Shopify and Graphql
@@ -43,14 +49,19 @@ A mocked version of Graphql is available in `/Mock`. It can be extended, if need
 # Run unit tests
 composer test
 
-# Run coverage
+# Run coverage and update coverage badge
 composer test-coverage
-
-# Run coverage and update badge
-composer test-badge
 ```
 
 ### Code formatting
+
+Install PHP CS Fixer (once)
+
+```shell
+composer install --working-dir=tools/php-cs-fixer
+```
+
+Run PHP CS Fixer
 
 ```shell
 composer php-cs-fixer
