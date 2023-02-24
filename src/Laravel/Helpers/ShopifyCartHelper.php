@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\App;
 use Irishdistillers\ShopifyStorefrontCheckout\Cart;
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyAccountInterface;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 
@@ -31,14 +32,14 @@ class ShopifyCartHelper
         ]);
     }
 
-    protected static function getMock(Context $context, bool $mock = false): ?array
+    protected static function getMock(Context $context, bool $mock = false, bool $factory = false): ?array
     {
         // Automatically use mock Graphql if running unit tests or set SHOPIFY_MOCK=1 in configuration
         $isMock = $mock || App::runningUnitTests() || config('storefront-checkout.mock') || 'dusk' === env('APP_ENV');
         if ($isMock) {
             // Mock is singleton, in order to store temporarily graphql values in unit tests
             if (! self::$mock) {
-                self::$mock = new MockGraphql($context);
+                self::$mock = new MockGraphql($context, $factory ? new MockFactory() : null);
             }
 
             return self::$mock->getEndpoints();
@@ -50,28 +51,28 @@ class ShopifyCartHelper
     /**
      * @throws Exception
      */
-    public static function getNewCartService(?ArrayObject $config = null, bool $mock = false): CartService
+    public static function getNewCartService(?ArrayObject $config = null, bool $mock = false, bool $factory = false): CartService
     {
         $context = self::getContext($config);
 
         return new CartService(
             $context,
             app('log')->driver()->getLogger(),
-            self::getMock($context, $mock)
+            self::getMock($context, $mock, $factory)
         );
     }
 
     /**
      * @throws Exception
      */
-    public static function getNewCart(?ArrayObject $config = null, bool $mock = false): Cart
+    public static function getNewCart(?ArrayObject $config = null, bool $mock = false, bool $factory = false): Cart
     {
         $context = self::getContext($config);
 
         return new Cart(
             $context,
             app('log')->driver()->getLogger(),
-            self::getMock($context, $mock)
+            self::getMock($context, $mock, $factory)
         );
     }
 }
