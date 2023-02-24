@@ -28,11 +28,20 @@ class MockStoreTest extends TestCase
         $obj->set('test', $id2, $value2);
         $obj->set('test', $id3, $value3);
 
+        // Retrieve
         $this->assertEquals($value1, $obj->get('test', $id1));
         $this->assertEquals($value2, $obj->get('test', $id2));
         $this->assertEquals($value3, $obj->get('test', $id3));
 
         $this->assertNull($obj->get('invalid', $id1));
         $this->assertNull($obj->get('test', $this->getRandomId()));
+
+        // Exist
+        $this->assertTrue($obj->has('test', $id1));
+        $this->assertTrue($obj->has('test', $id2));
+        $this->assertFalse($obj->has('test', $id3)); // Value is null
+
+        $this->assertFalse($obj->has('invalid', $id1));
+        $this->assertFalse($obj->has('test', $this->getRandomId()));
     }
 }

@@ -62,7 +62,7 @@ class MockShopify
     }
 
     /**
-     * Get mocked Shopify discount codes provider.
+     * Get mocked Shopify discount code provider.
      *
      * @return MockDiscountCodes
      */
@@ -74,7 +74,7 @@ class MockShopify
     /**
      * Get mocked Shopify Ids provider.
      *
-     * @return \Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockIds
+     * @return MockIds
      */
     public function ids(): MockIds
     {
@@ -84,7 +84,7 @@ class MockShopify
     /**
      * Get mocked markets provider.
      *
-     * @return \Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockMarkets
+     * @return MockMarkets
      */
     public function market(): MockMarkets
     {

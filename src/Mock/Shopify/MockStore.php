@@ -30,4 +30,16 @@ class MockStore
     {
         return self::$store[$prefix][$id] ?? null;
     }
+
+    /**
+     * Check if object exists.
+     *
+     * @param string $prefix
+     * @param string $id
+     * @return bool
+     */
+    public function has(string $prefix, string $id): bool
+    {
+        return isset(self::$store[$prefix][$id]);
+    }
 }

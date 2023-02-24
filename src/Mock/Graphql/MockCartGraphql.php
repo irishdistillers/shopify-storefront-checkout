@@ -4,6 +4,7 @@ namespace Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql;
 
 use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\Query\MockGraphqlQuery;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 
 class MockCartGraphql extends MockBaseGraphql
 {
@@ -52,8 +53,23 @@ class MockCartGraphql extends MockBaseGraphql
         $cartId = $variables['cartId'] ?? '';
         $newCountryCode = $variables['buyerIdentity']['countryCode'] ?? 'IE';
 
+        // Check if cart exists
+        if (! $this->mockShopify->cart()->exist($cartId)) {
+            // If cart doesn't exist and factory is created, create the cart on the fly
+            if ($this->factory) {
+                // Create cart
+                $this->factory->handle(
+                    MockFactory::FACTORY_CART_CREATE,
+                    $this->mockShopify,
+                    $cartId,
+                    $newCountryCode
+//                    ['cartId' => $cartId, 'newCountryCode' => $newCountryCode]
+                );
+            }
+        }
+
         // Get cart with correct market
-        $cart = $this->mockShopify->cart()->updateBuyerIdentity($cartId, $newCountryCode);
+        $cart = $this->mockShopify->cart()->get($cartId, $newCountryCode);
 
         if ($cart) {
             return $this->response(

@@ -9,16 +9,19 @@ class MockGraphql
 {
     protected Context $context;
 
-    public function __construct(Context $context)
+    protected ?MockFactory $factory;
+
+    public function __construct(Context $context, ?MockFactory $factory = null)
     {
         $this->context = $context;
+        $this->factory = $factory;
     }
 
     public function getEndpoints(): array
     {
         // Add here Graphql mocks
         return array_merge(
-            (new MockCartGraphql($this->context))->getEndpoints(),
+            (new MockCartGraphql($this->context, $this->factory))->getEndpoints(),
         );
     }
 }

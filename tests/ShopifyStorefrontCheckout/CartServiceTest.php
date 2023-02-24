@@ -6,7 +6,9 @@ namespace Tests\ShopifyStorefrontCheckout;
 
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockShopify;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 use PHPUnit\Framework\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
@@ -927,8 +929,19 @@ class CartServiceTest extends TestCase
         $cartService = $this->getCartService();
 
         // Do not get checkout URL
-        $checkoutUrl = $cartService->getCheckoutUrl('gid://shopify/Cart/'.md5(uniqid()), ShopifyConstants::DEFAULT_MARKET);
+        $checkoutUrl = $cartService->getCheckoutUrl($this->getRandomCartId(), ShopifyConstants::DEFAULT_MARKET);
         $this->assertNull($checkoutUrl);
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_get_checkout_url_from_the_cart_with_mock_enabled()
+    {
+        $cartService = $this->getCartService(new MockFactory());
+
+        $checkoutUrl = $cartService->getCheckoutUrl($this->getRandomCartId(), ShopifyConstants::DEFAULT_MARKET);
+        $this->assertNotNull($checkoutUrl);
     }
 
     /**

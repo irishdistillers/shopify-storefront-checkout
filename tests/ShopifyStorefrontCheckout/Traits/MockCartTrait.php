@@ -4,6 +4,7 @@ namespace Tests\ShopifyStorefrontCheckout\Traits;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Cart;
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 
@@ -29,10 +30,10 @@ trait MockCartTrait
         return 'dummy_shopify_access_token';
     }
 
-    protected function getCart(): Cart
+    protected function getCart(?MockFactory $factory = null): Cart
     {
         $context = $this->getContext();
-        $mock = new MockGraphql($context);
+        $mock = new MockGraphql($context, $factory);
 
         return new Cart(
             $context,
@@ -41,10 +42,10 @@ trait MockCartTrait
         );
     }
 
-    protected function getCartService(): CartService
+    protected function getCartService(?MockFactory $factory = null): CartService
     {
         $context = $this->getContext();
-        $mock = new MockGraphql($context);
+        $mock = new MockGraphql($context, $factory);
 
         // Create cart, mocking all Graphql endpoints
         return new CartService(

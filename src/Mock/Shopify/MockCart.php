@@ -271,10 +271,11 @@ class MockCart
      * Create new cart.
      *
      * @param string $countryCode
+     * @param string|null $forceCartId
      * @return array|null
      * @throws Exception
      */
-    public function create(string $countryCode): ?array
+    public function create(string $countryCode, ?string $forceCartId = null): ?array
     {
         // Validate market
         if (! $this->shopify->market()->has($countryCode)) {
@@ -282,7 +283,7 @@ class MockCart
         }
 
         // Create random cart
-        $cartId = $this->shopify->ids()->createRandomId(self::CART_PREFIX);
+        $cartId = $forceCartId ?: $this->shopify->ids()->createRandomId(self::CART_PREFIX);
         $cart = [
             'id' => $this->encode($cartId),
             'createdAt' => date('Y-m-d\TH:i:s\Z'),
@@ -318,7 +319,7 @@ class MockCart
     }
 
     /**
-     * Get cart, if existing.
+     * Get cart, if existing, updating always buyer identity.
      *
      * @param string $cartId
      * @param string $countryCode
@@ -326,19 +327,6 @@ class MockCart
      * @throws Exception
      */
     public function get(string $cartId, string $countryCode): ?array
-    {
-        return $this->updateBuyerIdentity($cartId, $countryCode);
-    }
-
-    /**
-     * Update buyer identity.
-     *
-     * @param string $cartId
-     * @param string $countryCode
-     * @return array|null
-     * @throws Exception
-     */
-    public function updateBuyerIdentity(string $cartId, string $countryCode): ?array
     {
         // Get cart
         $cart = $this->shopify->store()->get(self::CART_PREFIX, $cartId);
@@ -349,6 +337,17 @@ class MockCart
 
         // Re-calculate prices
         return $this->updateCartPricesByMarket($cartId, $countryCode);
+    }
+
+    /**
+     * Check if cart exists. Used internally by mock library.
+     *
+     * @param string $cartId
+     * @return bool
+     */
+    public function exist(string $cartId): bool
+    {
+        return $this->shopify->store()->has(self::CART_PREFIX, $cartId);
     }
 
     /**
