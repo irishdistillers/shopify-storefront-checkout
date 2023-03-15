@@ -38,19 +38,19 @@
     },
     "scripts": {
         "php-cs-fixer": [
-            "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --verbose"
+            "@php tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --verbose"
         ],
         "test": [
-            "./vendor/bin/phpunit --testdox tests"
+            "@php ./vendor/bin/phpunit --testdox tests"
         ],
         "test-coverage": [
             "@putenv XDEBUG_MODE=coverage",
-            "./vendor/bin/phpunit --coverage-html reports/ --coverage-clover clover.xml --process-isolation tests",
-            "vendor/bin/php-coverage-badger clover.xml coverage.svg"
+            "@php ./vendor/bin/phpunit --coverage-html reports/ --coverage-clover clover.xml --process-isolation tests",
+            "@php vendor/bin/php-coverage-badger clover.xml coverage.svg"
         ],
         "test-badge": [
             "@php -dxdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover clover.xml --process-isolation tests",
-            "vendor/bin/php-coverage-badger clover.xml coverage.svg"
+            "@php vendor/bin/php-coverage-badger clover.xml coverage.svg"
         ]
     }
 }

@@ -2,9 +2,11 @@
 
 namespace Irishdistillers\ShopifyStorefrontCheckout;
 
+use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Graphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Traits\ShopifyUtilsTrait;
+use Irishdistillers\ShopifyStorefrontCheckout\Utils\AttributeFormatter;
 use Irishdistillers\ShopifyStorefrontCheckout\Utils\Beautifier;
 use Monolog\Logger;
 
@@ -286,6 +288,7 @@ QUERY;
      * @param int $quantity Quantity must be >= 1
      * @param array $attributes Attributes, e.g. ['mvr' => 1]
      * @return string|null
+     * @throws Exception
      */
     public function addLine(?string $cartId, string $variantId, int $quantity, array $attributes = []): ?string
     {
@@ -312,6 +315,7 @@ QUERY;
      * @param string|null $cartId
      * @param array $variantIdsWithQuantityAndAttributes See above docs
      * @return string|null
+     * @throws Exception
      */
     public function addLines(?string $cartId, array $variantIdsWithQuantityAndAttributes): ?string
     {
@@ -336,7 +340,7 @@ QUERY;
                 $attributes = [];
                 if (is_array($values)) {
                     $quantity = $values['quantity'] ?? 0;
-                    $attributes = $values['attributes'] ?? [];
+                    $attributes = AttributeFormatter::format($values['attributes'] ?? []);
                 } else {
                     $quantity = $values;
                 }
@@ -372,6 +376,7 @@ QUERY;
      * @param int $quantity Quantity must be >= 1
      * @param array $attributes
      * @return string|null
+     * @throws Exception
      */
     public function updateLine(?string $cartId, ?string $lineItemId, int $quantity, array $attributes = []): ?string
     {
@@ -397,6 +402,7 @@ QUERY;
      * @param string|null $cartId
      * @param array $lineItemIdsWithQuantityAndAttributes See above docs
      * @return string|null
+     * @throws Exception
      */
     public function updateLines(?string $cartId, array $lineItemIdsWithQuantityAndAttributes): ?string
     {
@@ -421,7 +427,7 @@ QUERY;
                 $attributes = [];
                 if (is_array($values)) {
                     $quantity = $values['quantity'];
-                    $attributes = $values['attributes'];
+                    $attributes = AttributeFormatter::format($values['attributes']);
                 } else {
                     $quantity = $values;
                 }

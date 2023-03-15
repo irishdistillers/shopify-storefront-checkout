@@ -220,11 +220,24 @@ class MockCart
                     if ($this->decode($node['id']) === $lineItemId) {
                         // Update quantity
                         $cart['lines']['edges'][$index]['node']['quantity'] += $quantity;
-                        // Update attributes
-                        $cart['lines']['edges'][$index]['node']['attributes'] = array_merge(
-                            $cart['lines']['edges'][$index]['node']['attributes'],
-                            $attributes
-                        );
+
+                        // Update attributes, handling correctly existing attribute keys
+                        foreach ($attributes as $attribute) {
+                            $found = false;
+                            foreach ($cart['lines']['edges'][$index]['node']['attributes'] as $index => $lineItemAttribute) {
+                                if ($lineItemAttribute['key'] === $attribute['key']) {
+                                    $found = true;
+                                    $cart['lines']['edges'][$index]['node']['attributes'][$index]['value'] = $attribute['value'];
+                                    break;
+                                }
+                            }
+
+                            if ($found) {
+                                continue;
+                            }
+
+                            $cart['lines']['edges'][$index]['node']['attributes'][] = $attribute;
+                        }
                         break;
                     }
                 }

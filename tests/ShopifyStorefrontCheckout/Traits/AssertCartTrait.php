@@ -2,6 +2,8 @@
 
 namespace Tests\ShopifyStorefrontCheckout\Traits;
 
+use Irishdistillers\ShopifyStorefrontCheckout\Utils\AttributeFormatter;
+
 trait AssertCartTrait
 {
     protected function cartAssertLineItemCount(array $cart, int $expectedCount)
@@ -11,6 +13,8 @@ trait AssertCartTrait
 
     protected function cartAssertLineItem(array $cart, int $lineItemIndex, int $expectedQuantity, array $expectedAttributes = [])
     {
+        $expectedAttributes = AttributeFormatter::format($expectedAttributes);
+
         $lineItem = $cart['lines']['edges'][$lineItemIndex] ?? null;
         if ($lineItem) {
             $lineItemNode = $lineItem['node'];
