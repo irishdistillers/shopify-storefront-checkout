@@ -59,6 +59,7 @@ class Graphql
      * @param string $query
      * @param array $variables
      * @return array|false|string
+     * @codeCoverageIgnore
      */
     protected function post(string $query, array $variables = [])
     {
@@ -132,6 +133,7 @@ class Graphql
      * @param string $query
      * @param array $variables
      * @return array|mixed|null
+     * @codeCoverageIgnore
      */
     protected function curlQuery(string $query, array $variables = [])
     {
