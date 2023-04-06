@@ -152,9 +152,10 @@ QUERY;
      * @param string|null $cartId Cart ID with gid:// prefix
      * @param string|null $countryCode Market, e.g. IE or GB
      * @param bool $setAutomaticallyBuyerIdentity
+     * @param bool $includeSellingPlanAllocation Include selling plan allocation in cart line items. It requires unauthenticated_read_selling_plans access scope.
      * @return array|null
      */
-    public function getCart(?string $cartId, ?string $countryCode, bool $setAutomaticallyBuyerIdentity = true): ?array
+    public function getCart(?string $cartId, ?string $countryCode, bool $setAutomaticallyBuyerIdentity = true, bool $includeSellingPlanAllocation = false): ?array
     {
         // Set automatically buyer identity
         if ($setAutomaticallyBuyerIdentity) {
@@ -163,10 +164,17 @@ QUERY;
             }
         }
 
-        $query = <<<'QUERY'
- query cart($cartId: ID!, $countryCode: CountryCode!)
-    @inContext(country: $countryCode) {
-      cart( id: $cartId ) {
+        // Selling plan allocation query
+        $sellingPlanAllocationQuery = $includeSellingPlanAllocation ? 'sellingPlanAllocation {
+                sellingPlan {
+                  id
+                }
+              }' : '';
+
+        $query = <<<QUERY
+ query cart(\$cartId: ID!, \$countryCode: CountryCode!)
+    @inContext(country: \$countryCode) {
+      cart( id: \$cartId ) {
         id
         createdAt
         updatedAt
@@ -192,6 +200,8 @@ QUERY;
                 value
               }
               quantity
+
+              {$sellingPlanAllocationQuery}
 
               discountAllocations {
                 discountedAmount{
@@ -287,10 +297,11 @@ QUERY;
      * @param string $variantId Variant ID with gid:// prefix
      * @param int $quantity Quantity must be >= 1
      * @param array $attributes Attributes, e.g. ['mvr' => 1]
+     * @param string|null $sellingPlanId Selling plan ID, when it applies (e.g. pre-order)
      * @return string|null
      * @throws Exception
      */
-    public function addLine(?string $cartId, string $variantId, int $quantity, array $attributes = []): ?string
+    public function addLine(?string $cartId, string $variantId, int $quantity, array $attributes = [], ?string $sellingPlanId = null): ?string
     {
         return $this->addLines(
             $cartId,
@@ -299,7 +310,8 @@ QUERY;
                     'quantity' => $quantity,
                     'attributes' => $attributes,
                 ]],
-            ]
+            ],
+            $sellingPlanId
         );
     }
 
@@ -314,10 +326,11 @@ QUERY;
      *
      * @param string|null $cartId
      * @param array $variantIdsWithQuantityAndAttributes See above docs
+     * @param string|null $sellingPlanId Selling plan ID, when it applies (e.g. pre-order)
      * @return string|null
      * @throws Exception
      */
-    public function addLines(?string $cartId, array $variantIdsWithQuantityAndAttributes): ?string
+    public function addLines(?string $cartId, array $variantIdsWithQuantityAndAttributes, ?string $sellingPlanId = null): ?string
     {
         $query = <<<'QUERY'
  mutation cartLinesAdd($lines: [CartLineInput!]!, $cartId: ID!) {
@@ -345,11 +358,18 @@ QUERY;
                     $quantity = $values;
                 }
 
-                $lines[] = [
+                $line = [
                     'merchandiseId' => $this->normaliseVariantId($variantId),
                     'quantity' => $quantity,
                     'attributes' => $attributes,
                 ];
+
+                // Inject selling plan ID, if passed
+                if ($sellingPlanId) {
+                    $line['sellingPlanId'] = $sellingPlanId;
+                }
+
+                $lines[] = $line;
             }
         }
 

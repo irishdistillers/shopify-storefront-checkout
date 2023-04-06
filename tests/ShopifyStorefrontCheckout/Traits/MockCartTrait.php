@@ -85,6 +85,11 @@ trait MockCartTrait
         return 'gid://shopify/Cart/'.md5(uniqid());
     }
 
+    protected function getRandomSellingCartId(): string
+    {
+        return 'gid://shopify/SellingPlan/'.md5(uniqid());
+    }
+
     protected function getExpectedGraphqlEndpoints(): array
     {
         return [

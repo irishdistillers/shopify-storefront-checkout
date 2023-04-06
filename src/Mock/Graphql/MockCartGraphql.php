@@ -98,6 +98,9 @@ class MockCartGraphql extends MockBaseGraphql
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function cartGet(?string $query, ?array $variables): ?array
     {
         // Parse graphql query

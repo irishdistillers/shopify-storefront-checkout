@@ -180,6 +180,43 @@ class CartServiceTest extends TestCase
     /**
      * @group shopify_cart
      */
+    public function test_add_single_line_with_attributes_and_selling_plan_to_cart()
+    {
+        $cartService = $this->getCartService();
+
+        $sellingPlanId = $this->getRandomSellingCartId();
+
+        // Create cart
+        $cartId = $cartService->getNewCart(ShopifyConstants::DEFAULT_MARKET);
+        $this->assertNotNull($cartId);
+
+        // Get newly created cart
+        $cart = $cartService->getCart($cartId, ShopifyConstants::DEFAULT_MARKET);
+        $this->assertNotNull($cart);
+        $this->assertCount(0, $cart['lines']['edges']);
+        $this->assertEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+
+        // Prepare attributes
+        $attributes = ['test' => '123'];
+
+        // Add item to the cart
+        $ret = $cartService->addLine($cart['id'], $this->getNewVariantId(), 1, $attributes, $sellingPlanId);
+        $this->assertNotNull($ret);
+
+        // Assert that the item was added
+        $cart = $cartService->getCart($cartId, ShopifyConstants::DEFAULT_MARKET);
+        $this->assertNotNull($cart);
+        $this->assertCount(1, $cart['lines']['edges']);
+        $this->assertNotEquals('0.0', $cart['lines']['edges'][0]['node']['merchandise']['priceV2']['amount']);
+        $this->assertEquals(1, $cart['lines']['edges'][0]['node']['quantity']);
+        $this->assertNotEquals('0.0', $cart['estimatedCost']['totalAmount']['amount']);
+        $this->assertCount(1, $cart['lines']['edges'][0]['node']['attributes']);
+        $this->assertEquals([['key' => 'test', 'value' => 123]], $cart['lines']['edges'][0]['node']['attributes']);
+    }
+
+    /**
+     * @group shopify_cart
+     */
     public function test_add_single_line_to_cart_using_variant_already_in_lines()
     {
         $cartService = $this->getCartService();

@@ -18,8 +18,11 @@ class ShopifyCartCommand extends Command
 
     protected CartService $cart;
 
+    protected bool $includeSellingPlanAllocation;
+
     public function __construct()
     {
+        $this->includeSellingPlanAllocation = false;
         parent::__construct();
     }
 
@@ -85,7 +88,7 @@ class ShopifyCartCommand extends Command
     protected function printCart(?string $cartId, ?string $countryCode, bool $pretty)
     {
         // Get cart
-        $cart = $this->cart->getCart($cartId, $countryCode);
+        $cart = $this->cart->getCart($cartId, $countryCode, true, $this->includeSellingPlanAllocation);
 
         if ($cart) {
             $this->alert('Cart '.$cartId);
@@ -443,6 +446,8 @@ class ShopifyCartCommand extends Command
     {
         try {
             $this->initCart();
+
+            $this->includeSellingPlanAllocation = $this->confirm('Include selling plan allocation in cart object? It requires unauthenticated_read_selling_plans access scope.');
 
             while (true) {
                 $this->alert('Shopify Cart - Please make a choice');

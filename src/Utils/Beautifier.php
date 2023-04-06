@@ -83,6 +83,11 @@ class Beautifier
                 'image' => null,
             ];
 
+            // Inject selling plan allocation, if available
+            if (isset($node['sellingPlanAllocation'])) {
+                $item['sellingPlanAllocation'] = $node['sellingPlanAllocation']['sellingPlan']['id'] ?? null;
+            }
+
             if ($moreDetails) {
                 $item['product_id'] = $this->decode($node['merchandise']['product']['id'] ?? null);
 

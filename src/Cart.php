@@ -2,6 +2,7 @@
 
 namespace Irishdistillers\ShopifyStorefrontCheckout;
 
+use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 use Irishdistillers\ShopifyStorefrontCheckout\Utils\Beautifier;
@@ -20,6 +21,8 @@ class Cart
 
     protected ?string $countryCode;
 
+    protected bool $includeSellingPlanAllocation;
+
     /**
      * @param Context $context
      * @param Logger|null $logger
@@ -31,6 +34,7 @@ class Cart
         $this->cartId = null;
         $this->cart = null;
         $this->countryCode = ShopifyConstants::DEFAULT_MARKET;
+        $this->includeSellingPlanAllocation = false;
     }
 
     /**
@@ -44,6 +48,28 @@ class Cart
         $this->countryCode = $countryCode;
 
         return $this;
+    }
+
+    /**
+     * Set flag to include selling plan allocation in cart line items.
+     * It requires unauthenticated_read_selling_plans access scope.
+     *
+     * @param bool $includeSellingPlanAllocation
+     * @return Cart
+     */
+    public function setIncludeSellingPlanAllocation(bool $includeSellingPlanAllocation): self
+    {
+        $this->includeSellingPlanAllocation = $includeSellingPlanAllocation;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isIncludeSellingPlanAllocation(): bool
+    {
+        return $this->includeSellingPlanAllocation;
     }
 
     /**
@@ -109,7 +135,7 @@ class Cart
      */
     public function getCart(): ?array
     {
-        return $this->cartService->getCart($this->cartId, $this->countryCode);
+        return $this->cartService->getCart($this->cartId, $this->countryCode, true, $this->includeSellingPlanAllocation);
     }
 
     /**
@@ -118,22 +144,26 @@ class Cart
      * @param string $variantId Variant ID with gid:// prefix
      * @param int $quantity Quantity must be >= 1
      * @param array $attributes
+     * @param string|null $sellingPlanId
      * @return bool
+     * @throws Exception
      */
-    public function addLine(string $variantId, int $quantity, array $attributes = []): bool
+    public function addLine(string $variantId, int $quantity, array $attributes = [], ?string $sellingPlanId = null): bool
     {
-        return (bool) $this->cartService->addLine($this->cartId, $variantId, $quantity, $attributes);
+        return (bool) $this->cartService->addLine($this->cartId, $variantId, $quantity, $attributes, $sellingPlanId);
     }
 
     /**
      * Add line items.
      *
      * @param array $variantIdsWithQuantity Array with variant IDs and quantity, e.g. [ ['gid://.../variant_id' => quantity], ...]
+     * @param string|null $sellingPlanId
      * @return bool
+     * @throws Exception
      */
-    public function addLines(array $variantIdsWithQuantity): bool
+    public function addLines(array $variantIdsWithQuantity, ?string $sellingPlanId = null): bool
     {
-        return (bool) $this->cartService->addLines($this->cartId, $variantIdsWithQuantity);
+        return (bool) $this->cartService->addLines($this->cartId, $variantIdsWithQuantity, $sellingPlanId);
     }
 
     /**
@@ -143,6 +173,7 @@ class Cart
      * @param int $quantity Quantity must be >= 1
      * @param array $attributes
      * @return bool
+     * @throws Exception
      */
     public function updateLine(?string $lineItemId, int $quantity, array $attributes = []): bool
     {
@@ -154,6 +185,7 @@ class Cart
      *
      * @param array $lineItemIdsWithQuantity E.g. [ [ 'gid://.../line_item_id' => quantity ], [ 'gid://.../line_item_id' => quantity ], ... ]
      * @return bool
+     * @throws Exception
      */
     public function updateLines(array $lineItemIdsWithQuantity): bool
     {
