@@ -37,7 +37,7 @@ class GraphqlTest extends TestCase
         $this->assertEquals($url, $obj->getApiPath());
 
         $this->assertEquals([
-            'Content-Type: application/graphql',
+            'Content-Type: application/json',
             'X-Shopify-Access-Token: '.$this->getDummyShopifyAccessToken(),
         ], $obj->headers());
     }

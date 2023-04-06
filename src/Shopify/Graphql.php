@@ -4,6 +4,7 @@ namespace Irishdistillers\ShopifyStorefrontCheckout\Shopify;
 
 use Exception;
 use Monolog\Logger;
+use stdClass;
 
 class Graphql
 {
@@ -58,30 +59,17 @@ class Graphql
      *
      * @param string $query
      * @param array $variables
-     * @return array|false|string
+     * @return false|string
      * @codeCoverageIgnore
      */
     protected function post(string $query, array $variables = [])
     {
-        if (empty($variables)) {
-            $post = trim($query);
-        } else {
-            // @todo Mutation for admin API to be implemented
-//            $post = '{
-//              query: "' . trim(str_replace("\n", ' ', $query)) . '",
-//              variables: ' . json_encode($variables) . '
-//            }';
-            $post = [
-                'query' => trim($query),
-                'variables' => $variables,
-            ];
-        }
+        $post = [
+            'query' => trim($query),
+            'variables' => empty($variables) ? new stdClass() : $variables,
+        ];
 
-        if ($this->useStoreFrontApi) {
-            $post = json_encode($post);
-        }
-
-        return $post;
+        return json_encode($post);
     }
 
     /**
@@ -95,11 +83,10 @@ class Graphql
         $headers = [
         ];
 
+        $headers[] = 'Content-Type: application/json';
         if ($this->useStoreFrontApi) {
-            $headers[] = 'Content-Type: application/json';
             $headers[] = 'X-Shopify-Storefront-Access-Token: '.$this->context->getShopifyStoreFrontAccessToken();
         } else {
-            $headers[] = 'Content-Type: application/graphql';
             $headers[] = 'X-Shopify-Access-Token: '.$this->context->getShopifyAccessToken();
         }
 

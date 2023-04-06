@@ -423,6 +423,18 @@ class ShopifyCartCommand extends Command
     }
 
     /**
+     * Initialise cart.
+     * Override in subclasses to change the initialisation.
+     *
+     * @return void
+     * @throws Exception
+     */
+    protected function initCart(): void
+    {
+        $this->cart = ShopifyCartHelper::getNewCartService();
+    }
+
+    /**
      * Execute the console command.
      *
      * @return int
@@ -430,7 +442,7 @@ class ShopifyCartCommand extends Command
     public function handle(): int
     {
         try {
-            $this->cart = ShopifyCartHelper::getNewCartService();
+            $this->initCart();
 
             while (true) {
                 $this->alert('Shopify Cart - Please make a choice');
