@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
 use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Console\Commands\Traits\ChoiceWithAssociativeOptionsTrait;
-use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyCartHelper;
+use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyHelper;
 
 /**
  * @codeCoverageIgnore
@@ -434,7 +434,7 @@ class ShopifyCartCommand extends Command
      */
     protected function initCart(): void
     {
-        $this->cart = ShopifyCartHelper::getNewCartService();
+        $this->cart = ShopifyHelper::getNewCartService();
     }
 
     /**

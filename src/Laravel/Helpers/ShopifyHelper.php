@@ -10,12 +10,13 @@ use Irishdistillers\ShopifyStorefrontCheckout\CartService;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyAccountInterface;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
+use Irishdistillers\ShopifyStorefrontCheckout\SellingPlanGroupService;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 
 /**
  * @codeCoverageIgnore
  */
-class ShopifyCartHelper
+class ShopifyHelper
 {
     protected static ?MockGraphql $mock = null;
 
@@ -70,6 +71,20 @@ class ShopifyCartHelper
         $context = self::getContext($config);
 
         return new Cart(
+            $context,
+            app('log')->driver()->getLogger(),
+            self::getMock($context, $mock, $factory)
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function getNewSellingPlanGroupService(?ArrayObject $config = null, bool $mock = false, bool $factory = false): SellingPlanGroupService
+    {
+        $context = self::getContext($config);
+
+        return new SellingPlanGroupService(
             $context,
             app('log')->driver()->getLogger(),
             self::getMock($context, $mock, $factory)

@@ -255,42 +255,71 @@ return [
 
 #### Helper
 
-Use `ShopifyCartHelper` to create a cart service or a cart object.
+Use `ShopifyHelper` to create a cart service, a cart object or a selling plan group service.
+
+##### Cart
 
 **Scenario 1: load configuration from `.env`**
 
 It will load configuration, as described above.
 
 ```php
-use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyCartHelper;
+use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyHelper;
 
 // Create cart service, loading .env configuration
-$cartService = ShopifyCartHelper::getNewCartService();
+$cartService = ShopifyHelper::getNewCartService();
 
 // Create cart object, loading .env configuration
-$cartObject = ShopifyCartHelper::getNewCart();
+$cartObject = ShopifyHelper::getNewCart();
 ```
 
 **Scenario 2: assign dynamically configuration**
 
 ```php
 use ArrayObject;
-use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyCartHelper;
+use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyHelper;
 
 // Create cart service, assigning dynamically configuration
-$cartService = ShopifyCartHelper::getNewCartService(new ArrayObject([
-    ShopifyAccountInterface::SHOPIFY_BASE_URL => 'dummy.shopify.com',
-    ShopifyAccountInterface::API_VERSION => '2022-01',
-    ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN => 'dummy_store_front_token',
+$cartService = ShopifyHelper::getNewCartService(new ArrayObject([
+    ShopifyAccountInterface::API_VERSION => '2023-01',
     ShopifyAccountInterface::APP_SIGNATURE => 'dummy_access_token',
+    ShopifyAccountInterface::SHOPIFY_BASE_URL => 'dummy.shopify.com',
+    ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN => 'dummy_store_front_token',
 ]));
 
 // Create cart object, assigning dynamically configuration
-$cartObject = ShopifyCartHelper::getNewCart(new ArrayObject([
-    ShopifyAccountInterface::SHOPIFY_BASE_URL => 'dummy.shopify.com',
-    ShopifyAccountInterface::API_VERSION => '2022-01',
-    ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN => 'dummy_store_front_token',
+$cartObject = ShopifyHelper::getNewCart(new ArrayObject([
+    ShopifyAccountInterface::API_VERSION => '2023-01',
     ShopifyAccountInterface::APP_SIGNATURE => 'dummy_access_token',
+    ShopifyAccountInterface::SHOPIFY_BASE_URL => 'dummy.shopify.com',
+    ShopifyAccountInterface::STOREFRONT_ACCESS_TOKEN => 'dummy_store_front_token',
+]));
+```
+
+##### Selling plan group
+
+**Scenario 1: load configuration from `.env`**
+
+It will load configuration, as described above.
+
+```php
+use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyHelper;
+
+// Create selling plan group service, loading .env configuration
+$sellingPlanGroupService = ShopifyHelper::getNewSellingPlanGroupService();
+```
+
+**Scenario 2: assign dynamically configuration**
+
+```php
+use ArrayObject;
+use Irishdistillers\ShopifyStorefrontCheckout\Laravel\Helpers\ShopifyHelper;
+
+// Create selling plan group service, assigning dynamically configuration
+$sellingPlanGroupService = ShopifyHelper::getNewSellingPlanGroupService(new ArrayObject([
+    ShopifyAccountInterface::API_VERSION => '2023-01',
+    ShopifyAccountInterface::APP_SIGNATURE => 'dummy_access_token',
+    ShopifyAccountInterface::SHOPIFY_BASE_URL => 'dummy.shopify.com',com
 ]));
 ```
 
