@@ -3,7 +3,7 @@
 namespace Tests\ShopifyStorefrontCheckout\Utils;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class BeautifierTest extends TestCase

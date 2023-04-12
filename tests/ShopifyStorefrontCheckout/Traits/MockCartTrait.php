@@ -2,11 +2,14 @@
 
 namespace Tests\ShopifyStorefrontCheckout\Traits;
 
+use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Cart;
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
+use Irishdistillers\ShopifyStorefrontCheckout\SellingPlanGroupService;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
+use Monolog\Logger;
 
 trait MockCartTrait
 {
@@ -30,19 +33,25 @@ trait MockCartTrait
         return 'dummy_shopify_access_token';
     }
 
-    protected function getCart(?MockFactory $factory = null): Cart
+    /**
+     * @throws Exception
+     */
+    protected function getCart(?MockFactory $factory = null, ?Logger $logger = null): Cart
     {
         $context = $this->getContext();
         $mock = new MockGraphql($context, $factory);
 
         return new Cart(
             $context,
-            null,
+            $logger,
             $mock->getEndpoints()
         );
     }
 
-    protected function getCartService(?MockFactory $factory = null): CartService
+    /**
+     * @throws Exception
+     */
+    protected function getCartService(?MockFactory $factory = null, ?Logger $logger = null): CartService
     {
         $context = $this->getContext();
         $mock = new MockGraphql($context, $factory);
@@ -50,11 +59,30 @@ trait MockCartTrait
         // Create cart, mocking all Graphql endpoints
         return new CartService(
             $context,
-            null,
+            $logger,
             $mock->getEndpoints()
         );
     }
 
+    /**
+     * @throws Exception
+     */
+    protected function getSellingPlanGroupService(?MockFactory $factory = null, ?Logger $logger = null): SellingPlanGroupService
+    {
+        $context = $this->getContext();
+        $mock = new MockGraphql($context, $factory);
+
+        // Create cart, mocking all Graphql endpoints
+        return new SellingPlanGroupService(
+            $context,
+            $logger,
+            $mock->getEndpoints()
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
     protected function getContext(): Context
     {
         return new Context(
@@ -102,6 +130,12 @@ trait MockCartTrait
             'mutation cartNoteUpdate',
             'mutation cartAttributesUpdate',
             'mutation cartDiscountCodesUpdate',
+            'query sellingPlanGroup',
+            'query SellingPlanGroupsList',
+            'mutation sellingPlanGroupCreate',
+            'mutation sellingPlanGroupAddProducts',
+            'mutation sellingPlanGroupAddProductVariants',
+            'mutation sellingPlanGroupDelete',
         ];
     }
 }

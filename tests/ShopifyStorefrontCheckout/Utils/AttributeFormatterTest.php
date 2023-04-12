@@ -3,7 +3,7 @@
 namespace Tests\ShopifyStorefrontCheckout\Utils;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Utils\AttributeFormatter;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 
 class AttributeFormatterTest extends TestCase
 {

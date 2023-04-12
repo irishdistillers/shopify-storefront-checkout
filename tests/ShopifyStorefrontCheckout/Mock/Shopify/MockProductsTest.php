@@ -4,7 +4,7 @@ namespace Tests\ShopifyStorefrontCheckout\Mock\Shopify;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockShopify;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockProducts;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class MockProductsTest extends TestCase
@@ -22,9 +22,9 @@ class MockProductsTest extends TestCase
         $this->assertNotNull($product);
         $this->assertIsArray($product);
         $this->assertEquals([
-            'variant_id',
-            'product_id',
+            'id',
             'title',
+            'product_id',
             'price',
             'currency',
             'images',

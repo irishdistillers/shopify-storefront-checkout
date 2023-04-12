@@ -5,7 +5,7 @@ namespace Tests\ShopifyStorefrontCheckout\Mock;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Factory\MockFactoryHandler;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockShopify;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class MockFactoryTest extends TestCase

@@ -4,7 +4,7 @@ namespace Tests\ShopifyStorefrontCheckout\Mock\Graphql;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\MockCartGraphql;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class MockCartGraphqlTest extends TestCase
@@ -21,8 +21,21 @@ class MockCartGraphqlTest extends TestCase
     {
         $obj = new MockCartGraphql($this->getContext());
 
-        $endpoints = $obj->getEndpoints();
-        $this->assertEquals($this->getExpectedGraphqlEndpoints(), array_keys($endpoints));
+        $expectedEndpoints = [
+            'query cart',
+            'mutation cartCreate',
+            'mutation cartBuyerIdentityUpdate',
+            'mutation cartLinesAdd',
+            'mutation cartLinesUpdate',
+            'mutation cartLinesRemove',
+            'mutation cartNoteUpdate',
+            'mutation cartAttributesUpdate',
+            'mutation cartDiscountCodesUpdate',
+        ];
+        $this->assertEquals(
+            $expectedEndpoints,
+            array_keys($obj->getEndpoints())
+        );
     }
 
     public function test_create_cart_via_mock_cart_graphql()

@@ -4,7 +4,7 @@ namespace Tests\ShopifyStorefrontCheckout\Mock\Graphql\Query;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\Query\MockGraphqlQuery;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 
 class MockGraphqlQueryTest extends TestCase
 {

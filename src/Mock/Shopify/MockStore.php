@@ -42,4 +42,37 @@ class MockStore
     {
         return isset(self::$store[$prefix][$id]);
     }
+
+    /**
+     * Delete object, if existing.
+     *
+     * @param string $prefix
+     * @param string $id
+     * @return bool
+     */
+    public function delete(string $prefix, string $id): bool
+    {
+        if ($this->has($prefix, $id)) {
+            unset(self::$store[$prefix][$id]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function all(string $prefix, int $start = 0, ?int $limit = null): array
+    {
+        $list = self::$store[$prefix] ?? [];
+        if ($limit) {
+            return array_slice($list, $start, $limit);
+        }
+
+        return $list;
+    }
+
+    public static function clear()
+    {
+        self::$store = [];
+    }
 }

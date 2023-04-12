@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\ShopifyStorefrontCheckout;
 
-use Irishdistillers\ShopifyStorefrontCheckout\CartService;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
-use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
-use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockShopify;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
-use PHPUnit\Framework\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class CartServiceTest extends TestCase

@@ -105,6 +105,7 @@ class MockCart
      * @param string $currency
      * @param string $variantId
      * @param int $quantity
+     * @param array $attributes
      * @return array|null
      * @throws Exception
      */

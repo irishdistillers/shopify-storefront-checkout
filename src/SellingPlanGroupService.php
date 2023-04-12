@@ -11,20 +11,23 @@ use Monolog\Logger;
 
 class SellingPlanGroupService
 {
+    protected Context $context;
+
     protected Graphql $graphql;
 
     protected array $errorMessages = [];
 
     protected ?Logger $logger;
 
-    public function __construct(Context $context, ?Logger $logger = null, bool $debugShopify = false)
+    public function __construct(Context $context, ?Logger $logger = null, ?array $mock = null)
     {
+        $this->context = $context;
         $this->logger = $logger;
         $this->graphql = new Graphql(
             $context,
             false,
             $this->logger,
-            $debugShopify ? (new MockGraphql($context))->getEndpoints() : null
+            $mock
         );
     }
 
@@ -56,7 +59,7 @@ class SellingPlanGroupService
         }
 
         if ($this->logger) {
-            $this->logger->debug('ShopifySellingPlan.query failed', [
+            $this->logger->error('ShopifySellingPlan.query failed', [
                 'query' => $query,
                 'variables' => $variables,
                 'field' => $field,
@@ -89,6 +92,14 @@ class SellingPlanGroupService
     }
 
     /**
+     * @return Context
+     */
+    public function getContext(): Context
+    {
+        return $this->context;
+    }
+
+    /**
      * Create selling plan group.
      *
      * @param array $options
@@ -97,6 +108,7 @@ class SellingPlanGroupService
     public function create(array $options)
     {
         $name = $options['name'] ?? null;
+        $description = $options['description'] ?? null;
         $merchantCode = $options['merchantCode'] ?? null;
         $deposit = $options['deposit'] ?? null;
         $remainingBalanceChargeTime = $options['remainingBalanceChargeTime'] ?? null;
@@ -156,10 +168,12 @@ QUERY;
                     ],
                 ],
             ],
-            'resources' => [
-                'productVariantIds' => $productVariantIds,
-            ],
+            'resources' => [],
         ];
+
+        if ($description) {
+            $variables['input']['description'] = $description;
+        }
 
         if ($position !== false) {
             $variables['input']['position'] = (int) $position;
@@ -185,9 +199,9 @@ QUERY;
                 if (! empty($productVariantIds)) {
                     $this->addProductVariants($sellingPlanGroupId, $productVariantIds);
                 }
-            }
 
-            return $sellingPlanGroupId;
+                return $sellingPlanGroupId;
+            }
         }
 
         return false;
@@ -225,15 +239,10 @@ QUERY;
         $data = $this->query(
             $query,
             $variables,
-            'sellingPlanGroupAddProducts'
+            'SellingPlanGroupAddProductsPayload'
         );
 
-        // Check result
-        if ($data) {
-            return $data['sellingPlanGroup']['id'] ?? false;
-        }
-
-        return false;
+        return $data['sellingPlanGroup']['id'] ?? false;
     }
 
     /**
@@ -268,15 +277,10 @@ QUERY;
         $data = $this->query(
             $query,
             $variables,
-            'sellingPlanGroupAddProductVariants'
+            'SellingPlanGroupAddProductVariantsPayload'
         );
 
-        // Check result
-        if ($data) {
-            return $data['sellingPlanGroup']['id'] ?? false;
-        }
-
-        return false;
+        return $data['sellingPlanGroup']['id'] ?? false;
     }
 
     /**
@@ -308,15 +312,113 @@ QUERY;
         $data = $this->query(
             $query,
             $variables,
-            'sellingPlanGroupDelete'
+            'SellingPlanGroupDeletePayload'
         );
 
         // Check result
         if ($data) {
-            return $data['sellingPlanGroup']['id'] ?? false;
+            return $data['deletedSellingPlanGroupId'] ?? false;
         }
 
         return false;
+    }
+
+    public function get(string $entityId): ?array
+    {
+        // Graphql
+        $query = <<<'QUERY'
+query sellingPlanGroup($sellingPlanGroupId: ID!) {
+    id
+    createdAt
+    merchantCode
+    name
+    description
+    options
+    position
+    productCount
+    summary
+    products(first: 10) {
+      edges {
+        node {
+          id
+          title
+        }
+      }
+    }
+    productVariants(first: 10) {
+      edges {
+        node {
+          id
+          title
+        }
+      }
+    }
+    sellingPlans(first: 10) {
+      edges {
+        node {
+          id
+          billingPolicy {
+            ... on SellingPlanFixedBillingPolicy {
+              checkoutCharge {
+                  type
+                  value {
+                      ... on SellingPlanCheckoutChargePercentageValue {
+                          percentage
+                      }
+                  }
+              }
+              remainingBalanceChargeExactTime
+              remainingBalanceChargeTimeAfterCheckout
+              remainingBalanceChargeTrigger
+            }
+          }
+          category
+          createdAt
+          deliveryPolicy {
+            ... on SellingPlanFixedDeliveryPolicy {
+              cutoff
+              fulfillmentExactTime
+              fulfillmentTrigger
+              intent
+              preAnchorBehavior
+            }
+          }
+          inventoryPolicy {
+              reserve
+          }
+          name
+          options
+          pricingPolicies {
+            ... on SellingPlanFixedPricingPolicy {
+              adjustmentType
+              adjustmentValue {
+                ... on SellingPlanPricingPolicyPercentageValue {
+                  percentage
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+}
+QUERY;
+
+        // Query
+        $data = $this->query(
+            $query,
+            [
+                'sellingPlanGroupId' => $entityId,
+            ],
+            'sellingPlanGroup'
+        );
+
+        // Check result
+        if ($data) {
+            return $data;
+        }
+
+        return null;
     }
 
     /**
@@ -337,6 +439,7 @@ query SellingPlanGroupsList {
         createdAt
         merchantCode
         name
+        description
         options
         position
         productCount
@@ -407,7 +510,7 @@ QUERY;
         $data = $this->query(
             $query,
             [],
-            'sellingPlanGroups'
+            'SellingPlanGroupConnection'
         );
 
         // Check result

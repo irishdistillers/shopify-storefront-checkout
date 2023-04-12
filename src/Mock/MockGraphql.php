@@ -3,6 +3,7 @@
 namespace Irishdistillers\ShopifyStorefrontCheckout\Mock;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\MockCartGraphql;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Graphql\MockSellingPlanGroupGraphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 
 class MockGraphql
@@ -22,6 +23,7 @@ class MockGraphql
         // Add here Graphql mocks
         return array_merge(
             (new MockCartGraphql($this->context, $this->factory))->getEndpoints(),
+            (new MockSellingPlanGroupGraphql($this->context, $this->factory))->getEndpoints(),
         );
     }
 }

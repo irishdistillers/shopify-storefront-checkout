@@ -3,7 +3,7 @@
 namespace Tests\ShopifyStorefrontCheckout\Mock\Shopify;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockStore;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 
 class MockStoreTest extends TestCase
 {

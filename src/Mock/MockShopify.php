@@ -3,10 +3,13 @@
 namespace Irishdistillers\ShopifyStorefrontCheckout\Mock;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockCart;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockConnections;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockDiscountCodes;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockIds;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockMarkets;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockProducts;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockSellingPlanGroups;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockSellingPlans;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockStore;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 
@@ -16,6 +19,8 @@ class MockShopify
 
     protected MockCart $cart;
 
+    protected MockConnections $connections;
+
     protected MockDiscountCodes $discountCodes;
 
     protected MockIds $ids;
@@ -23,6 +28,10 @@ class MockShopify
     protected MockMarkets $markets;
 
     protected MockProducts $products;
+
+    protected MockSellingPlanGroups $sellingPlanGroups;
+
+    protected MockSellingPlans $sellingPlans;
 
     protected MockStore $store;
 
@@ -34,10 +43,13 @@ class MockShopify
 
         // Create Shopify providers
         $this->cart = new MockCart($this);
+        $this->connections = new MockConnections($this);
         $this->discountCodes = new MockDiscountCodes();
         $this->ids = new MockIds();
         $this->markets = new MockMarkets();
         $this->products = new MockProducts($this);
+        $this->sellingPlanGroups = new MockSellingPlanGroups($this);
+        $this->sellingPlans = new MockSellingPlans($this);
         $this->store = new MockStore();
     }
 
@@ -49,6 +61,16 @@ class MockShopify
     public function cart(): MockCart
     {
         return $this->cart;
+    }
+
+    /**
+     * Get mocked Shopify connection provider used by mock store.
+     *
+     * @return MockConnections
+     */
+    public function connections(): MockConnections
+    {
+        return $this->connections;
     }
 
     /**
@@ -99,6 +121,26 @@ class MockShopify
     public function products(): MockProducts
     {
         return $this->products;
+    }
+
+    /**
+     * Get mocked selling plan groups provider.
+     *
+     * @return MockSellingPlanGroups
+     */
+    public function sellingPlanGroups(): MockSellingPlanGroups
+    {
+        return $this->sellingPlanGroups;
+    }
+
+    /**
+     * Get mocked selling plan provider.
+     *
+     * @return MockSellingPlans
+     */
+    public function sellingPlans(): MockSellingPlans
+    {
+        return $this->sellingPlans;
     }
 
     /**

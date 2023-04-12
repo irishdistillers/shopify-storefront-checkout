@@ -6,7 +6,7 @@ use ArrayObject;
 use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyAccountInterface;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 use TypeError;
 
 class ContextTest extends TestCase

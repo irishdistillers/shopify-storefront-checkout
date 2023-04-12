@@ -102,13 +102,20 @@ class Graphql
      */
     protected function mockQuery(string $query, array $variables = [])
     {
+        $endpoint = null;
+
         // Mock
         if (preg_match('/^([a-z ]*)\(/i', trim($query), $matches)) {
-            $endpoint = $matches[1];
-            $closure = $this->mockEndpoints[$endpoint] ?? null;
-            if (is_callable($closure)) {
-                return call_user_func($closure, $query, $variables);
-            }
+            // Query with parameters
+            $endpoint = trim($matches[1]);
+        } elseif (preg_match('/^([a-z ]*)\s*{/i', trim($query), $matches)) {
+            // Query without parameters
+            $endpoint = trim($matches[1]);
+        }
+
+        $closure = $this->mockEndpoints[$endpoint] ?? null;
+        if (is_callable($closure)) {
+            return call_user_func($closure, $query, $variables);
         }
 
         return null;

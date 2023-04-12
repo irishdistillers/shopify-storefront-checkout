@@ -4,7 +4,7 @@ namespace Tests\ShopifyStorefrontCheckout\Utils;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Utils\CostFormatter;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class CodeFormatterTest extends TestCase

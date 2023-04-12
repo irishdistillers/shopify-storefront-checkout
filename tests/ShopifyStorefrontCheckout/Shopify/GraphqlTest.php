@@ -3,7 +3,7 @@
 namespace Tests\ShopifyStorefrontCheckout\Shopify;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Graphql;
-use PHPUnit\Framework\TestCase;
+use Tests\ShopifyStorefrontCheckout\TestCase;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class GraphqlTest extends TestCase
