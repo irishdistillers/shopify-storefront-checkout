@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Support\Facades\App;
 use Irishdistillers\ShopifyStorefrontCheckout\Cart;
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\LogLevelConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyAccountInterface;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
@@ -52,42 +53,45 @@ class ShopifyHelper
     /**
      * @throws Exception
      */
-    public static function getNewCartService(?ArrayObject $config = null, bool $mock = false, bool $factory = false): CartService
+    public static function getNewCartService(?ArrayObject $config = null, bool $mock = false, bool $factory = false, int $logLevel = LogLevelConstants::LOG_LEVEL_NORMAL): CartService
     {
         $context = self::getContext($config);
 
         return new CartService(
             $context,
             app('log')->driver()->getLogger(),
-            self::getMock($context, $mock, $factory)
+            self::getMock($context, $mock, $factory),
+            $logLevel
         );
     }
 
     /**
      * @throws Exception
      */
-    public static function getNewCart(?ArrayObject $config = null, bool $mock = false, bool $factory = false): Cart
+    public static function getNewCart(?ArrayObject $config = null, bool $mock = false, bool $factory = false, int $logLevel = LogLevelConstants::LOG_LEVEL_NORMAL): Cart
     {
         $context = self::getContext($config);
 
         return new Cart(
             $context,
             app('log')->driver()->getLogger(),
-            self::getMock($context, $mock, $factory)
+            self::getMock($context, $mock, $factory),
+            $logLevel
         );
     }
 
     /**
      * @throws Exception
      */
-    public static function getNewSellingPlanGroupService(?ArrayObject $config = null, bool $mock = false, bool $factory = false): SellingPlanGroupService
+    public static function getNewSellingPlanGroupService(?ArrayObject $config = null, bool $mock = false, bool $factory = false, int $logLevel = LogLevelConstants::LOG_LEVEL_NORMAL): SellingPlanGroupService
     {
         $context = self::getContext($config);
 
         return new SellingPlanGroupService(
             $context,
             app('log')->driver()->getLogger(),
-            self::getMock($context, $mock, $factory)
+            self::getMock($context, $mock, $factory),
+            $logLevel
         );
     }
 }

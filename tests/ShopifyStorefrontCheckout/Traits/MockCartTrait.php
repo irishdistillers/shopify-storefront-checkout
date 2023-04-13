@@ -5,6 +5,7 @@ namespace Tests\ShopifyStorefrontCheckout\Traits;
 use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Cart;
 use Irishdistillers\ShopifyStorefrontCheckout\CartService;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\LogLevelConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use Irishdistillers\ShopifyStorefrontCheckout\SellingPlanGroupService;
@@ -36,47 +37,47 @@ trait MockCartTrait
     /**
      * @throws Exception
      */
-    protected function getCart(?MockFactory $factory = null, ?Logger $logger = null): Cart
+    protected function getCart(?MockFactory $factory = null, ?Logger $logger = null, int $logLevel = LogLevelConstants::LOG_LEVEL_NORMAL): Cart
     {
         $context = $this->getContext();
-        $mock = new MockGraphql($context, $factory);
 
         return new Cart(
             $context,
             $logger,
-            $mock->getEndpoints()
+            (new MockGraphql($context, $factory))->getEndpoints(),
+            $logLevel
         );
     }
 
     /**
      * @throws Exception
      */
-    protected function getCartService(?MockFactory $factory = null, ?Logger $logger = null): CartService
+    protected function getCartService(?MockFactory $factory = null, ?Logger $logger = null, int $logLevel = LogLevelConstants::LOG_LEVEL_NORMAL): CartService
     {
         $context = $this->getContext();
-        $mock = new MockGraphql($context, $factory);
 
         // Create cart, mocking all Graphql endpoints
         return new CartService(
             $context,
             $logger,
-            $mock->getEndpoints()
+            (new MockGraphql($context, $factory))->getEndpoints(),
+            $logLevel
         );
     }
 
     /**
      * @throws Exception
      */
-    protected function getSellingPlanGroupService(?MockFactory $factory = null, ?Logger $logger = null): SellingPlanGroupService
+    protected function getSellingPlanGroupService(?MockFactory $factory = null, ?Logger $logger = null, int $logLevel = LogLevelConstants::LOG_LEVEL_NORMAL): SellingPlanGroupService
     {
         $context = $this->getContext();
-        $mock = new MockGraphql($context, $factory);
 
         // Create cart, mocking all Graphql endpoints
         return new SellingPlanGroupService(
             $context,
             $logger,
-            $mock->getEndpoints()
+            (new MockGraphql($context, $factory))->getEndpoints(),
+            $logLevel
         );
     }
 

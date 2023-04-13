@@ -71,7 +71,7 @@ class MockSellingPlanGroupGraphql extends MockBaseGraphql
         if ($asEdges) {
             $cursor = rand(1111111, 22222222);
             $response = [
-                'SellingPlanGroupConnection' => [
+                'sellingPlanGroups' => [
                     'edges' => array_map(function ($entity) use ($cursor) {
                         return [
                             'cursor' => $cursor,
@@ -82,7 +82,7 @@ class MockSellingPlanGroupGraphql extends MockBaseGraphql
             ];
         } else {
             $response = [
-                'SellingPlanGroupConnection' => $entities,
+                'sellingPlanGroups' => $entities,
             ];
         }
 

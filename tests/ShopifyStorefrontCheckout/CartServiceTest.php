@@ -4,14 +4,62 @@ declare(strict_types=1);
 
 namespace Tests\ShopifyStorefrontCheckout;
 
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\LogLevelConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockFactory;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 
 class CartServiceTest extends TestCase
 {
     use MockCartTrait;
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_create_cart_instance_with_logger()
+    {
+        // Create logger with test handler
+        $handler = new TestHandler();
+        $logger = new Logger('logger', [$handler]);
+        $this->assertFalse($handler->hasErrorRecords());
+
+        // Create service
+        $cartService = $this->getCartService(null, $logger);
+
+        // Trigger error
+        $cartService->getCart($this->getRandomCartId(), ShopifyConstants::DEFAULT_MARKET, false);
+
+        // Assert that errors were logged
+        $this->assertNotEmpty($cartService->errors());
+        $this->assertEquals(['The specified cart does not exist.'], $cartService->errors());
+        $this->assertTrue($handler->hasWarningRecords());
+    }
+
+    /**
+     * @group shopify_cart
+     */
+    public function test_create_cart_instance_with_logger_and_log_level_detailed()
+    {
+        // Create logger with test handler
+        $handler = new TestHandler();
+        $logger = new Logger('logger', [$handler]);
+        $this->assertFalse($handler->hasErrorRecords());
+
+        // Create service
+        $cartService = $this->getCartService(null, $logger, LogLevelConstants::LOG_LEVEL_DETAILED);
+
+        // Trigger error
+        $cartService->getCart($this->getRandomCartId(), ShopifyConstants::DEFAULT_MARKET, false);
+
+        // Assert that errors were logged
+        $this->assertNotEmpty($cartService->errors());
+        $this->assertEquals(['The specified cart does not exist.'], $cartService->errors());
+        $this->assertTrue($handler->hasWarningRecords());
+        $this->assertTrue($handler->hasDebugRecords());
+    }
 
     /**
      * @group shopify_cart

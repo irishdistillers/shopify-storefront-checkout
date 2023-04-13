@@ -3,6 +3,7 @@
 namespace Irishdistillers\ShopifyStorefrontCheckout;
 
 use Exception;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\LogLevelConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 use Irishdistillers\ShopifyStorefrontCheckout\Utils\Beautifier;
@@ -27,10 +28,11 @@ class Cart
      * @param Context $context
      * @param Logger|null $logger
      * @param null|array $mock
+     * @param int $logLevel
      */
-    public function __construct(Context $context, ?Logger $logger = null, ?array $mock = null)
+    public function __construct(Context $context, ?Logger $logger = null, ?array $mock = null, int $logLevel = LogLevelConstants::LOG_LEVEL_NORMAL)
     {
-        $this->cartService = new CartService($context, $logger, $mock);
+        $this->cartService = new CartService($context, $logger, $mock, $logLevel);
         $this->cartId = null;
         $this->cart = null;
         $this->countryCode = ShopifyConstants::DEFAULT_MARKET;
@@ -265,13 +267,13 @@ class Cart
     }
 
     /**
-     * Get last error.
+     * Get errors.
      *
-     * @return array|string|null
+     * @return array
      */
-    public function getLastError()
+    public function errors(): array
     {
-        return $this->cartService->getLastError();
+        return $this->cartService->errors();
     }
 
     /**

@@ -1158,7 +1158,7 @@ class CartTest extends TestCase
     /**
      * @group shopify_cart
      */
-    public function test_get_last_error_for_valid_cart_object()
+    public function test_get_errors_for_valid_cart_object()
     {
         $cartObj = $this->getCart();
 
@@ -1166,7 +1166,7 @@ class CartTest extends TestCase
         $cart = $cartObj->getNewCart();
         $this->assertNotNull($cart);
 
-        $this->assertNull($cartObj->getLastError());
+        $this->assertEmpty($cartObj->errors());
     }
 
     /**

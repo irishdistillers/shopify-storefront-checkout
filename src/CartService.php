@@ -3,8 +3,9 @@
 namespace Irishdistillers\ShopifyStorefrontCheckout;
 
 use Exception;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\BaseService;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\LogLevelConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
-use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Graphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Traits\ShopifyUtilsTrait;
 use Irishdistillers\ShopifyStorefrontCheckout\Utils\AttributeFormatter;
 use Irishdistillers\ShopifyStorefrontCheckout\Utils\Beautifier;
@@ -13,15 +14,9 @@ use Monolog\Logger;
 /**
  * Storefront cart API.
  */
-class CartService
+class CartService extends BaseService
 {
     use ShopifyUtilsTrait;
-
-    protected Context $context;
-
-    protected Graphql $graphql;
-
-    protected ?Logger $logger;
 
     /** @var array|string|null */
     protected $lastError;
@@ -30,13 +25,17 @@ class CartService
      * @param Context $context
      * @param Logger|null $logger
      * @param null|array $mock
+     * @param int $logLevel
      */
-    public function __construct(Context $context, ?Logger $logger = null, ?array $mock = null)
+    public function __construct(Context $context, ?Logger $logger = null, ?array $mock = null, int $logLevel = LogLevelConstants::LOG_LEVEL_NORMAL)
     {
-        $this->context = $context;
-        $this->logger = $logger;
-        $this->graphql = new Graphql($context, true, $logger, $mock);
         $this->lastError = null;
+        parent::__construct($context, $logger, $mock, $logLevel);
+    }
+
+    protected function useStoreFrontApi(): bool
+    {
+        return true;
     }
 
     /**
@@ -51,6 +50,9 @@ class CartService
     protected function setLastError(string $endpoint, $error = null)
     {
         $this->lastError = $this->graphql->getLastError() ?? $error;
+        if ($this->lastError) {
+            $this->errorMessages[] = $this->lastError;
+        }
         if ($this->lastError && $this->logger) {
             $this->logger->warning('Shopify Cart error', ['endpoint' => $endpoint, 'error' => $this->lastError]);
         }

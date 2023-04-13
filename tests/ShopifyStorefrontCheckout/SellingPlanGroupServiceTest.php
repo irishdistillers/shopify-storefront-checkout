@@ -2,10 +2,11 @@
 
 namespace Tests\ShopifyStorefrontCheckout;
 
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\LogLevelConstants;
+use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockShopify;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockProducts;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockSellingPlanGroups;
-use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockStore;
 use Irishdistillers\ShopifyStorefrontCheckout\SellingPlanGroupService;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -14,14 +15,6 @@ use Tests\ShopifyStorefrontCheckout\Traits\MockCartTrait;
 class SellingPlanGroupServiceTest extends TestCase
 {
     use MockCartTrait;
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        // Clear store
-        MockStore::clear();
-    }
 
     protected function getValidSellingPlanGroupOptions(array $productIds = [], array $productVariantIds = []): array
     {
@@ -67,9 +60,37 @@ class SellingPlanGroupServiceTest extends TestCase
         // Trigger error
         $service->remove('dummy');
 
+        // Assert that errors were logged
         $this->assertNotEmpty($service->errors());
         $this->assertEquals(['Empty response'], $service->errors());
         $this->assertTrue($handler->hasErrorRecords());
+        $this->assertFalse($handler->hasDebugRecords());
+    }
+
+    public function test_create_service_plan_group_service_with_logger_and_log_level_detailed()
+    {
+        // Create logger with test handler
+        $handler = new TestHandler();
+        $logger = new Logger('logger', [$handler]);
+        $this->assertFalse($handler->hasErrorRecords());
+
+        // Create service
+        $context = $this->getContext();
+        $service = new SellingPlanGroupService(
+            $context,
+            $logger,
+            (new MockGraphql($context, null))->getEndpoints(),
+            LogLevelConstants::LOG_LEVEL_DETAILED
+        );
+        $this->assertNotNull($service);
+        $this->assertEmpty($service->errors());
+
+        // Trigger error
+        $service->remove('dummy');
+
+        $this->assertNotEmpty($service->errors());
+        $this->assertTrue($handler->hasErrorRecords());
+        $this->assertTrue($handler->hasDebugRecords());
     }
 
     public function test_create_service_plan_group_with_valid_data()

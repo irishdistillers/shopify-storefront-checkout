@@ -2,71 +2,15 @@
 
 namespace Irishdistillers\ShopifyStorefrontCheckout;
 
-use Exception;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\BaseService;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
-use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
-use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Graphql;
-use Monolog\Logger;
+use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Models\QueryModel;
 
-class SellingPlanGroupService
+class SellingPlanGroupService extends BaseService
 {
-    protected Context $context;
-
-    protected Graphql $graphql;
-
-    protected array $errorMessages = [];
-
-    protected ?Logger $logger;
-
-    public function __construct(Context $context, ?Logger $logger = null, ?array $mock = null)
+    protected function useStoreFrontApi(): bool
     {
-        $this->context = $context;
-        $this->logger = $logger;
-        $this->graphql = new Graphql(
-            $context,
-            false,
-            $this->logger,
-            $mock
-        );
-    }
-
-    /**
-     * @param string $query
-     * @param array $variables
-     * @param string $field
-     * @return array|bool
-     */
-    protected function query(string $query, array $variables, string $field)
-    {
-        $this->errorMessages = [];
-        try {
-            // Run query
-            $data = $this->graphql->query($query, $variables);
-
-            // Check errors
-            $errors = $data[$field]['userErrors'] ?? [];
-            if (count($errors)) {
-                $this->errorMessages = $errors;
-            } else {
-                if ($data) {
-                    return $data[$field] ?? false;
-                }
-                $this->errorMessages[] = 'Empty response';
-            }
-        } catch (Exception $e) {
-            $this->errorMessages[] = $e->getMessage();
-        }
-
-        if ($this->logger) {
-            $this->logger->error('ShopifySellingPlan.query failed', [
-                'query' => $query,
-                'variables' => $variables,
-                'field' => $field,
-                'errors' => $this->errorMessages,
-            ]);
-        }
-
         return false;
     }
 
@@ -84,11 +28,6 @@ class SellingPlanGroupService
         return array_map(function ($entityId) use ($prefix) {
             return $this->addShopifyGidPrefix($entityId, $prefix);
         }, $entityIds ?? []);
-    }
-
-    public function errors(): array
-    {
-        return $this->errorMessages;
     }
 
     /**
@@ -181,8 +120,7 @@ QUERY;
 
         // Query
         $data = $this->query(
-            $query,
-            $variables,
+            new QueryModel($query, $variables),
             'sellingPlanGroupCreate'
         );
 
@@ -237,8 +175,7 @@ QUERY;
 
         // Query
         $data = $this->query(
-            $query,
-            $variables,
+            new QueryModel($query, $variables),
             'SellingPlanGroupAddProductsPayload'
         );
 
@@ -275,8 +212,7 @@ QUERY;
 
         // Query
         $data = $this->query(
-            $query,
-            $variables,
+            new QueryModel($query, $variables),
             'SellingPlanGroupAddProductVariantsPayload'
         );
 
@@ -310,8 +246,7 @@ QUERY;
 
         // Query
         $data = $this->query(
-            $query,
-            $variables,
+            new QueryModel($query, $variables),
             'SellingPlanGroupDeletePayload'
         );
 
@@ -406,10 +341,7 @@ QUERY;
 
         // Query
         $data = $this->query(
-            $query,
-            [
-                'sellingPlanGroupId' => $entityId,
-            ],
+            new QueryModel($query, ['sellingPlanGroupId' => $entityId]),
             'sellingPlanGroup'
         );
 
@@ -508,9 +440,8 @@ QUERY;
 
         // Query
         $data = $this->query(
-            $query,
-            [],
-            'SellingPlanGroupConnection'
+            new QueryModel($query),
+            'sellingPlanGroups'
         );
 
         // Check result
