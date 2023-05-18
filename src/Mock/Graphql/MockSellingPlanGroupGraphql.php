@@ -254,7 +254,7 @@ class MockSellingPlanGroupGraphql extends MockBaseGraphql
     {
         // Add here other Graphql endpoints
         return [
-            'query sellingPlanGroup' => [$this, 'sellingPlanGroupGet'],
+            'query SellingPlanGroup' => [$this, 'sellingPlanGroupGet'],
             'query SellingPlanGroupsList' => [$this, 'sellingPlanGroupsList'],
             'mutation sellingPlanGroupCreate' => [$this, 'sellingPlanGroupCreate'],
             'mutation sellingPlanGroupAddProducts' => [$this, 'sellingPlanGroupAddProducts'],

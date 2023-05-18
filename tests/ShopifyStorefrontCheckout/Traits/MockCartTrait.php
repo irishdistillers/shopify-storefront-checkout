@@ -131,7 +131,7 @@ trait MockCartTrait
             'mutation cartNoteUpdate',
             'mutation cartAttributesUpdate',
             'mutation cartDiscountCodesUpdate',
-            'query sellingPlanGroup',
+            'query SellingPlanGroup',
             'query SellingPlanGroupsList',
             'mutation sellingPlanGroupCreate',
             'mutation sellingPlanGroupAddProducts',

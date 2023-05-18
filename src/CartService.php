@@ -183,6 +183,10 @@ QUERY;
         checkoutUrl
         buyerIdentity {
           countryCode
+          customer {
+           id
+          }
+          email
         }
         attributes {
           key

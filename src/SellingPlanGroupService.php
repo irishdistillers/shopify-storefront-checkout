@@ -262,7 +262,8 @@ QUERY;
     {
         // Graphql
         $query = <<<'QUERY'
-query sellingPlanGroup($sellingPlanGroupId: ID!) {
+query SellingPlanGroup ($sellingPlanGroupId: ID!) {
+  sellingPlanGroup(id: $sellingPlanGroupId) {
     id
     createdAt
     merchantCode
@@ -336,6 +337,7 @@ query sellingPlanGroup($sellingPlanGroupId: ID!) {
         }
       }
     }
+  }
 }
 QUERY;
 
