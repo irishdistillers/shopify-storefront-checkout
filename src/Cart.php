@@ -287,6 +287,16 @@ class Cart
     }
 
     /**
+     * Get last error.
+     *
+     * @return array|string|null
+     */
+    public function getLastError()
+    {
+        return $this->cartService->getLastError();
+    }
+
+    /**
      * Create beautifier object.
      *
      * @return Beautifier
