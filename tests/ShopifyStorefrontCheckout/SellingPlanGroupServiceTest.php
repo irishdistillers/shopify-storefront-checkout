@@ -134,6 +134,24 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertCount(0, $sellingPlanGroup['productVariants']);
         $this->assertCount(1, $sellingPlanGroup['sellingPlans']);
 
+        // Confirm that selling plan has been created correctly
+        $sellingPlan = $sellingPlanGroup['sellingPlans'][0];
+        $this->assertEquals([
+            'fixed' => [
+                'checkoutCharge' => [
+                    'type' => 'PERCENTAGE',
+                    'value' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+                'remainingBalanceChargeExactTime' => $options['remainingBalanceChargeTime'],
+                'remainingBalanceChargeTrigger' => '',
+            ],
+        ], $sellingPlan['billingPolicy']);
+        $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
+        $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
+        $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+
         $this->assertEmpty($service->errors());
     }
 
@@ -168,6 +186,24 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertCount(0, $sellingPlanGroup['productVariants']);
         $this->assertCount(1, $sellingPlanGroup['sellingPlans']);
 
+        // Confirm that selling plan has been created correctly
+        $sellingPlan = $sellingPlanGroup['sellingPlans'][0];
+        $this->assertEquals([
+            'fixed' => [
+                'checkoutCharge' => [
+                    'type' => 'PERCENTAGE',
+                    'value' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+                'remainingBalanceChargeExactTime' => $options['remainingBalanceChargeTime'],
+                'remainingBalanceChargeTrigger' => '',
+            ],
+        ], $sellingPlan['billingPolicy']);
+        $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
+        $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
+        $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+
         $this->assertEmpty($service->errors());
     }
 
@@ -201,6 +237,24 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertCount(0, $sellingPlanGroup['products']);
         $this->assertCount(1, $sellingPlanGroup['productVariants']);
         $this->assertCount(1, $sellingPlanGroup['sellingPlans']);
+
+        // Confirm that selling plan has been created correctly
+        $sellingPlan = $sellingPlanGroup['sellingPlans'][0];
+        $this->assertEquals([
+            'fixed' => [
+                'checkoutCharge' => [
+                    'type' => 'PERCENTAGE',
+                    'value' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+                'remainingBalanceChargeExactTime' => $options['remainingBalanceChargeTime'],
+                'remainingBalanceChargeTrigger' => '',
+            ],
+        ], $sellingPlan['billingPolicy']);
+        $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
+        $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
+        $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
 
         $this->assertEmpty($service->errors());
     }
@@ -237,6 +291,80 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals(1, $sellingPlanGroup['productCount']);
         $this->assertCount(1, $sellingPlanGroup['products']);
         $this->assertCount(1, $sellingPlanGroup['sellingPlans']);
+
+        // Confirm that selling plan has been created correctly
+        $sellingPlan = $sellingPlanGroup['sellingPlans'][0];
+        $this->assertEquals([
+            'fixed' => [
+                'checkoutCharge' => [
+                    'type' => 'PERCENTAGE',
+                    'value' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+                'remainingBalanceChargeExactTime' => $options['remainingBalanceChargeTime'],
+                'remainingBalanceChargeTrigger' => '',
+            ],
+        ], $sellingPlan['billingPolicy']);
+        $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
+        $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
+        $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+
+        $this->assertEmpty($service->errors());
+    }
+
+    /**
+     * @group shopify_cart
+     * @throws Exception
+     */
+    public function test_create_service_plan_group_with_valid_data_and_product_ids_and_fixed_deposit()
+    {
+        // Create service
+        $service = $this->getSellingPlanGroupService();
+        $shopify = new MockShopify($service->getContext());
+
+        $this->assertNotNull($service);
+        $this->assertEmpty($service->errors());
+
+        $productId = $shopify->ids()->createRandomId(MockProducts::PRODUCT_PREFIX);
+        $options = $this->getValidSellingPlanGroupOptions([$productId]);
+
+        // Set deposit
+        $options['depositAmount'] = 0.01;
+
+        $sellingPlanGroupId = $service->create($options);
+        $this->assertNotFalse($sellingPlanGroupId);
+
+        // Retrieve created group
+        $sellingPlanGroup = $service->get($sellingPlanGroupId);
+        $this->assertNotEmpty($sellingPlanGroup);
+        $this->assertEquals($sellingPlanGroupId, $sellingPlanGroup['id']);
+        $this->assertEquals($options['name'], $sellingPlanGroup['name']);
+        $this->assertEquals($options['merchantCode'], $sellingPlanGroup['merchantCode']);
+        $this->assertEquals(1, $sellingPlanGroup['productCount']);
+        $this->assertEquals(0, $sellingPlanGroup['productVariantCount']);
+        $this->assertCount(1, $sellingPlanGroup['products']);
+        $this->assertCount(0, $sellingPlanGroup['productVariants']);
+        $this->assertCount(1, $sellingPlanGroup['sellingPlans']);
+
+        // Confirm that selling plan has been created correctly
+        $sellingPlan = $sellingPlanGroup['sellingPlans'][0];
+        $this->assertEquals([
+            'fixed' => [
+                'checkoutCharge' => [
+                    'type' => 'PRICE',
+                    'value' => [
+                        'amount' => $options['depositAmount'],
+                        'currencyCode' => 'EUR',
+                    ],
+                ],
+                'remainingBalanceChargeExactTime' => $options['remainingBalanceChargeTime'],
+                'remainingBalanceChargeTrigger' => '',
+            ],
+        ], $sellingPlan['billingPolicy']);
+        $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
+        $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
+        $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
 
         $this->assertEmpty($service->errors());
     }

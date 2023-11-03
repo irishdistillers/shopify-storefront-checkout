@@ -3,6 +3,7 @@
 namespace Irishdistillers\ShopifyStorefrontCheckout;
 
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\BaseService;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\SellingPlanGroupInterface;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\ShopifyConstants;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Context;
 use Irishdistillers\ShopifyStorefrontCheckout\Shopify\Models\QueryModel;
@@ -46,18 +47,37 @@ class SellingPlanGroupService extends BaseService
      */
     public function create(array $options)
     {
-        $name = $options['name'] ?? null;
-        $description = $options['description'] ?? null;
-        $merchantCode = $options['merchantCode'] ?? null;
-        $deposit = $options['deposit'] ?? null;
-        $remainingBalanceChargeTime = $options['remainingBalanceChargeTime'] ?? null;
-        $remainingBalanceChargeTrigger = $options['remainingBalanceChargeTrigger'] ?? null;
-        $fulfillmentTrigger = $options['fulfillmentTrigger'] ?? null;
-        $inventoryReserve = $options['inventoryReserve'] ?? null;
-        $position = $options['position'] ?? false;
+        $name = $options[SellingPlanGroupInterface::NAME] ?? null;
+        $description = $options[SellingPlanGroupInterface::DESCRIPTION] ?? null;
+        $merchantCode = $options[SellingPlanGroupInterface::MERCHANT_CODE] ?? null;
+        $deposit = $options[SellingPlanGroupInterface::DEPOSIT] ?? null;
+        $depositAmount = $options[SellingPlanGroupInterface::DEPOSIT_AMOUNT] ?? null;
 
-        $productIds = $this->prepareShopifyIds($options['productIds'] ?? [], ShopifyConstants::GID_PRODUCT_PREFIX);
-        $productVariantIds = $this->prepareShopifyIds($options['productVariantIds'] ?? [], ShopifyConstants::GID_PRODUCT_VARIANT_PREFIX);
+        $remainingBalanceChargeTime = $options[SellingPlanGroupInterface::REMAINING_BALANCE_CHARGE_TIME] ?? null;
+        $remainingBalanceChargeTrigger = $options[SellingPlanGroupInterface::REMAINING_BALANCE_CHARGE_TRIGGER] ?? null;
+        $fulfillmentTrigger = $options[SellingPlanGroupInterface::FULFILLMENT_TRIGGER] ?? null;
+        $inventoryReserve = $options[SellingPlanGroupInterface::INVENTORY_RESERVE] ?? null;
+        $position = $options[SellingPlanGroupInterface::POSITION] ?? false;
+
+        if ($depositAmount) {
+            $checkoutCharge = [
+                'type' => 'PRICE',
+                'value' => [
+                    'amount' => $depositAmount,
+                    'currencyCode' => 'EUR',
+                ],
+            ];
+        } else {
+            $checkoutCharge = [
+                'type' => 'PERCENTAGE',
+                'value' => [
+                    'percentage' => $deposit,
+                ],
+            ];
+        }
+
+        $productIds = $this->prepareShopifyIds($options[SellingPlanGroupInterface::PRODUCT_IDS] ?? [], ShopifyConstants::GID_PRODUCT_PREFIX);
+        $productVariantIds = $this->prepareShopifyIds($options[SellingPlanGroupInterface::PRODUCT_VARIANT_IDS] ?? [], ShopifyConstants::GID_PRODUCT_VARIANT_PREFIX);
 
         // Graphql
         $query = <<<'QUERY'
@@ -87,12 +107,7 @@ QUERY;
                     'options' => 'Purchase Options with deposit',
                     'billingPolicy' => [
                         'fixed' => [
-                            'checkoutCharge' => [
-                                'type' => 'PERCENTAGE',
-                                'value' => [
-                                    'percentage' => $deposit,
-                                ],
-                            ],
+                            'checkoutCharge' => $checkoutCharge,
                             'remainingBalanceChargeExactTime' => $remainingBalanceChargeTime,
                             'remainingBalanceChargeTrigger' => $remainingBalanceChargeTrigger,
                         ],
