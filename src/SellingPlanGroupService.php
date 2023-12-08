@@ -59,7 +59,9 @@ class SellingPlanGroupService extends BaseService
         $inventoryReserve = $options[SellingPlanGroupInterface::INVENTORY_RESERVE] ?? null;
         $position = $options[SellingPlanGroupInterface::POSITION] ?? false;
 
-        // Prepare automatically pricing policy
+        // Set pricing policy for discounts
+        $discountType = $options[SellingPlanGroupInterface::DISCOUNT_TYPE] ?? null;
+        $discount = $options[SellingPlanGroupInterface::DISCOUNT] ?? [];
         $pricingPolicies = [];
 
         if ($depositAmount) {
@@ -69,14 +71,6 @@ class SellingPlanGroupService extends BaseService
                     'amount' => $depositAmount,
                 ],
             ];
-            $pricingPolicies[] = [
-                'fixed' => [
-                    'adjustmentType' => 'FIXED_AMOUNT',
-                    'adjustmentValue' => [
-                        'amount' => $depositAmount,
-                    ],
-                ],
-            ];
         } else {
             $checkoutCharge = [
                 'type' => 'PERCENTAGE',
@@ -84,12 +78,19 @@ class SellingPlanGroupService extends BaseService
                     'percentage' => $deposit,
                 ],
             ];
+        }
+
+        if ($discountType && $discount) {
             $pricingPolicies[] = [
                 'fixed' => [
-                    'adjustmentType' => 'PERCENTAGE',
-                    'adjustmentValue' => [
-                        'percentage' => $deposit,
-                    ],
+                    'adjustmentType' => $discountType,
+                    'adjustmentValue' => $discountType === 'FIXED_AMOUNT' ?
+                        [
+                            'amount' => $depositAmount,
+                        ] :
+                        [
+                            'percentage' => $deposit,
+                        ],
                 ],
             ];
         }

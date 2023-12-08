@@ -4,6 +4,7 @@ namespace Tests\ShopifyStorefrontCheckout;
 
 use Exception;
 use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\LogLevelConstants;
+use Irishdistillers\ShopifyStorefrontCheckout\Interfaces\SellingPlanGroupInterface;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockGraphql;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\MockShopify;
 use Irishdistillers\ShopifyStorefrontCheckout\Mock\Shopify\MockProducts;
@@ -20,15 +21,15 @@ class SellingPlanGroupServiceTest extends TestCase
     protected function getValidSellingPlanGroupOptions(array $productIds = [], array $productVariantIds = []): array
     {
         return [
-            'name' => 'Test'.rand(11111, 55555),
-            'merchantCode' => 'idl',
-            'deposit' => 0.0,
-            'remainingBalanceChargeTime' => date('Y-m-d', mktime(12, 0, 0, date('m') + 2, date('d'), date('Y'))),
-            'remainingBalanceChargeTrigger' => '',
-            'fulfillmentTrigger' => 'UNKNOWN',
-            'inventoryReserve' => 'ON_FULFILLMENT',
-            'productIds' => $productIds,
-            'productVariantIds' => $productVariantIds,
+            SellingPlanGroupInterface::NAME => 'Test'.rand(11111, 55555),
+            SellingPlanGroupInterface::MERCHANT_CODE => 'idl',
+            SellingPlanGroupInterface::DEPOSIT => 0.0,
+            SellingPlanGroupInterface::REMAINING_BALANCE_CHARGE_TIME => date('Y-m-d', mktime(12, 0, 0, date('m') + 2, date('d'), date('Y'))),
+            SellingPlanGroupInterface::REMAINING_BALANCE_CHARGE_TRIGGER => '',
+            SellingPlanGroupInterface::FULFILLMENT_TRIGGER => 'UNKNOWN',
+            SellingPlanGroupInterface::INVENTORY_RESERVE => 'ON_FULFILLMENT',
+            SellingPlanGroupInterface::PRODUCT_IDS => $productIds,
+            SellingPlanGroupInterface::PRODUCT_VARIANT_IDS => $productVariantIds,
         ];
     }
 
@@ -151,16 +152,7 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
-        $this->assertEquals([
-            [
-                'fixed' => [
-                    'adjustmentType' => 'PERCENTAGE',
-                    'adjustmentValue' => [
-                        'percentage' => $options['deposit'],
-                    ],
-                ],
-            ],
-        ], $sellingPlan['pricingPolicies']);
+        $this->assertEmpty($sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -213,16 +205,7 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
-        $this->assertEquals([
-            [
-                'fixed' => [
-                    'adjustmentType' => 'PERCENTAGE',
-                    'adjustmentValue' => [
-                        'percentage' => $options['deposit'],
-                    ],
-                ],
-            ],
-        ], $sellingPlan['pricingPolicies']);
+        $this->assertEmpty($sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -275,16 +258,7 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
-        $this->assertEquals([
-            [
-                'fixed' => [
-                    'adjustmentType' => 'PERCENTAGE',
-                    'adjustmentValue' => [
-                        'percentage' => $options['deposit'],
-                    ],
-                ],
-            ],
-        ], $sellingPlan['pricingPolicies']);
+        $this->assertEmpty($sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -339,12 +313,131 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+        $this->assertEmpty($sellingPlan['pricingPolicies']);
+
+        $this->assertEmpty($service->errors());
+    }
+
+    /**
+     * @group shopify_cart
+     * @throws Exception
+     */
+    public function test_create_service_plan_group_with_valid_data_and_percentage_discount()
+    {
+        // Create service
+        $service = $this->getSellingPlanGroupService();
+        $shopify = new MockShopify($service->getContext());
+
+        $this->assertNotNull($service);
+        $this->assertEmpty($service->errors());
+
+        $productId = $shopify->ids()->createRandomId(MockProducts::PRODUCT_PREFIX);
+        $options = $this->getValidSellingPlanGroupOptions([$productId]);
+        $options[SellingPlanGroupInterface::DISCOUNT_TYPE] = 'PERCENTAGE';
+        $options[SellingPlanGroupInterface::DISCOUNT] = 1;
+
+        $sellingPlanGroupId = $service->create($options);
+        $this->assertNotFalse($sellingPlanGroupId);
+
+        // Retrieve created group
+        $sellingPlanGroup = $service->get($sellingPlanGroupId);
+        $this->assertNotEmpty($sellingPlanGroup);
+        $this->assertEquals($sellingPlanGroupId, $sellingPlanGroup['id']);
+        $this->assertEquals($options['name'], $sellingPlanGroup['name']);
+        $this->assertEquals($options['merchantCode'], $sellingPlanGroup['merchantCode']);
+        $this->assertEquals(1, $sellingPlanGroup['productCount']);
+        $this->assertEquals(0, $sellingPlanGroup['productVariantCount']);
+        $this->assertCount(1, $sellingPlanGroup['products']);
+        $this->assertCount(0, $sellingPlanGroup['productVariants']);
+        $this->assertCount(1, $sellingPlanGroup['sellingPlans']);
+
+        // Confirm that selling plan has been created correctly
+        $sellingPlan = $sellingPlanGroup['sellingPlans'][0];
+        $this->assertEquals([
+            'fixed' => [
+                'checkoutCharge' => [
+                    'type' => 'PERCENTAGE',
+                    'value' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+                'remainingBalanceChargeExactTime' => $options['remainingBalanceChargeTime'],
+                'remainingBalanceChargeTrigger' => '',
+            ],
+        ], $sellingPlan['billingPolicy']);
+        $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
+        $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
+        $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
         $this->assertEquals([
             [
                 'fixed' => [
                     'adjustmentType' => 'PERCENTAGE',
                     'adjustmentValue' => [
                         'percentage' => $options['deposit'],
+                    ],
+                ],
+            ],
+        ], $sellingPlan['pricingPolicies']);
+
+        $this->assertEmpty($service->errors());
+    }
+
+    /**
+     * @group shopify_cart
+     * @throws Exception
+     */
+    public function test_create_service_plan_group_with_valid_data_and_fixed_discount()
+    {
+        // Create service
+        $service = $this->getSellingPlanGroupService();
+        $shopify = new MockShopify($service->getContext());
+
+        $this->assertNotNull($service);
+        $this->assertEmpty($service->errors());
+
+        $productId = $shopify->ids()->createRandomId(MockProducts::PRODUCT_PREFIX);
+        $options = $this->getValidSellingPlanGroupOptions([$productId]);
+        $options[SellingPlanGroupInterface::DISCOUNT_TYPE] = 'FIXED_AMOUNT';
+        $options[SellingPlanGroupInterface::DISCOUNT] = 5;
+
+        $sellingPlanGroupId = $service->create($options);
+        $this->assertNotFalse($sellingPlanGroupId);
+
+        // Retrieve created group
+        $sellingPlanGroup = $service->get($sellingPlanGroupId);
+        $this->assertNotEmpty($sellingPlanGroup);
+        $this->assertEquals($sellingPlanGroupId, $sellingPlanGroup['id']);
+        $this->assertEquals($options['name'], $sellingPlanGroup['name']);
+        $this->assertEquals($options['merchantCode'], $sellingPlanGroup['merchantCode']);
+        $this->assertEquals(1, $sellingPlanGroup['productCount']);
+        $this->assertEquals(0, $sellingPlanGroup['productVariantCount']);
+        $this->assertCount(1, $sellingPlanGroup['products']);
+        $this->assertCount(0, $sellingPlanGroup['productVariants']);
+        $this->assertCount(1, $sellingPlanGroup['sellingPlans']);
+
+        // Confirm that selling plan has been created correctly
+        $sellingPlan = $sellingPlanGroup['sellingPlans'][0];
+        $this->assertEquals([
+            'fixed' => [
+                'checkoutCharge' => [
+                    'type' => 'PERCENTAGE',
+                    'value' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+                'remainingBalanceChargeExactTime' => $options['remainingBalanceChargeTime'],
+                'remainingBalanceChargeTrigger' => '',
+            ],
+        ], $sellingPlan['billingPolicy']);
+        $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
+        $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
+        $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+        $this->assertEquals([
+            [
+                'fixed' => [
+                    'adjustmentType' => 'FIXED_AMOUNT',
+                    'adjustmentValue' => [
+                        'amount' => $options['deposit'],
                     ],
                 ],
             ],
@@ -404,16 +497,7 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
-        $this->assertEquals([
-            [
-                'fixed' => [
-                    'adjustmentType' => 'FIXED_AMOUNT',
-                    'adjustmentValue' => [
-                        'amount' => $options['depositAmount'],
-                    ],
-                ],
-            ],
-        ], $sellingPlan['pricingPolicies']);
+        $this->assertEmpty($sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -469,16 +553,7 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
-        $this->assertEquals([
-            [
-                'fixed' => [
-                    'adjustmentType' => 'PERCENTAGE',
-                    'adjustmentValue' => [
-                        'percentage' => $options['deposit'],
-                    ],
-                ],
-            ],
-        ], $sellingPlan['pricingPolicies']);
+        $this->assertEmpty($sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }

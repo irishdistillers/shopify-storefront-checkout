@@ -10,6 +10,10 @@ interface SellingPlanGroupInterface
 
     public const DESCRIPTION = 'description';
 
+    public const DISCOUNT = 'discount';
+
+    public const DISCOUNT_TYPE = 'discount_type';
+
     public const FULFILLMENT_TRIGGER = 'fulfillmentTrigger';
 
     public const INVENTORY_RESERVE = 'inventoryReserve';
