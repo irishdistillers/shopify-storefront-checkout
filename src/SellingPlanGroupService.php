@@ -58,6 +58,7 @@ class SellingPlanGroupService extends BaseService
         $fulfillmentTrigger = $options[SellingPlanGroupInterface::FULFILLMENT_TRIGGER] ?? null;
         $inventoryReserve = $options[SellingPlanGroupInterface::INVENTORY_RESERVE] ?? null;
         $position = $options[SellingPlanGroupInterface::POSITION] ?? false;
+        $pricingPolicies = $options[SellingPlanGroupInterface::PRICING_POLICIES] ?? [];
 
         if ($depositAmount) {
             $checkoutCharge = [
@@ -120,6 +121,7 @@ QUERY;
                     'inventoryPolicy' => [
                         'reserve' => $inventoryReserve,
                     ],
+                    'pricingPolicies' => $pricingPolicies,
                 ],
             ],
             'resources' => [],
