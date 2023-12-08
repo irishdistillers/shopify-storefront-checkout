@@ -20,8 +20,6 @@ interface SellingPlanGroupInterface
 
     public const POSITION = 'position';
 
-    public const PRICING_POLICIES = 'pricingPolicies';
-
     public const PRODUCT_IDS = 'productIds';
 
     public const PRODUCT_VARIANT_IDS = 'productVariantIds';

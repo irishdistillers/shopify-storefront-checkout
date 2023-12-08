@@ -151,6 +151,16 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+        $this->assertEquals([
+            [
+                'fixed' => [
+                    'adjustmentType' => 'PERCENTAGE',
+                    'adjustmentValue' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+            ],
+        ], $sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -203,6 +213,16 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+        $this->assertEquals([
+            [
+                'fixed' => [
+                    'adjustmentType' => 'PERCENTAGE',
+                    'adjustmentValue' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+            ],
+        ], $sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -255,6 +275,16 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+        $this->assertEquals([
+            [
+                'fixed' => [
+                    'adjustmentType' => 'PERCENTAGE',
+                    'adjustmentValue' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+            ],
+        ], $sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -309,6 +339,16 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+        $this->assertEquals([
+            [
+                'fixed' => [
+                    'adjustmentType' => 'PERCENTAGE',
+                    'adjustmentValue' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+            ],
+        ], $sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -355,7 +395,6 @@ class SellingPlanGroupServiceTest extends TestCase
                     'type' => 'PRICE',
                     'value' => [
                         'amount' => $options['depositAmount'],
-                        'currencyCode' => 'EUR',
                     ],
                 ],
                 'remainingBalanceChargeExactTime' => $options['remainingBalanceChargeTime'],
@@ -365,6 +404,16 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+        $this->assertEquals([
+            [
+                'fixed' => [
+                    'adjustmentType' => 'FIXED_AMOUNT',
+                    'adjustmentValue' => [
+                        'amount' => $options['depositAmount'],
+                    ],
+                ],
+            ],
+        ], $sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }
@@ -420,6 +469,16 @@ class SellingPlanGroupServiceTest extends TestCase
         $this->assertEquals('PRE_ORDER', $sellingPlan['category']);
         $this->assertEquals(['fixed' => ['fulfillmentTrigger' => $options['fulfillmentTrigger']]], $sellingPlan['deliveryPolicy']);
         $this->assertEquals(['reserve' => $options['inventoryReserve']], $sellingPlan['inventoryPolicy']);
+        $this->assertEquals([
+            [
+                'fixed' => [
+                    'adjustmentType' => 'PERCENTAGE',
+                    'adjustmentValue' => [
+                        'percentage' => $options['deposit'],
+                    ],
+                ],
+            ],
+        ], $sellingPlan['pricingPolicies']);
 
         $this->assertEmpty($service->errors());
     }

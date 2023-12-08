@@ -58,14 +58,23 @@ class SellingPlanGroupService extends BaseService
         $fulfillmentTrigger = $options[SellingPlanGroupInterface::FULFILLMENT_TRIGGER] ?? null;
         $inventoryReserve = $options[SellingPlanGroupInterface::INVENTORY_RESERVE] ?? null;
         $position = $options[SellingPlanGroupInterface::POSITION] ?? false;
-        $pricingPolicies = $options[SellingPlanGroupInterface::PRICING_POLICIES] ?? [];
+
+        // Prepare automatically pricing policy
+        $pricingPolicies = [];
 
         if ($depositAmount) {
             $checkoutCharge = [
                 'type' => 'PRICE',
                 'value' => [
                     'amount' => $depositAmount,
-                    'currencyCode' => 'EUR',
+                ],
+            ];
+            $pricingPolicies[] = [
+                'fixed' => [
+                    'adjustmentType' => 'FIXED_AMOUNT',
+                    'adjustmentValue' => [
+                        'amount' => $depositAmount,
+                    ],
                 ],
             ];
         } else {
@@ -73,6 +82,14 @@ class SellingPlanGroupService extends BaseService
                 'type' => 'PERCENTAGE',
                 'value' => [
                     'percentage' => $deposit,
+                ],
+            ];
+            $pricingPolicies[] = [
+                'fixed' => [
+                    'adjustmentType' => 'PERCENTAGE',
+                    'adjustmentValue' => [
+                        'percentage' => $deposit,
+                    ],
                 ],
             ];
         }
