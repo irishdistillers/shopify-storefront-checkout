@@ -45,7 +45,7 @@ class SellingPlanGroupService extends BaseService
      * @param array $options
      * @return string|bool
      */
-    public function create(array $options)
+    public function create(array $options): bool|string
     {
         $name = $options[SellingPlanGroupInterface::NAME] ?? null;
         $description = $options[SellingPlanGroupInterface::DESCRIPTION] ?? null;
@@ -118,7 +118,7 @@ QUERY;
                 'name' => $name,
                 'merchantCode' => $merchantCode,
                 'options' => [
-                    ucfirst($merchantCode),
+                    $merchantCode ? ucfirst($merchantCode) : '',
                 ],
                 'sellingPlansToCreate' => [
                     'name' => $name,
