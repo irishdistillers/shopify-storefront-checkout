@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "jaschilz/php-coverage-badger": "^2.0",
-        "phpunit/phpunit": "9.5.*"
+        "phpunit/phpunit": "9.5.* || 9.6.*"
     },
     "scripts": {
         "php-cs-fixer": [
